@@ -1,9 +1,9 @@
-from interface import *
+from interface import main_menu
 
 def main():
-    ola()
-    print("python main function")
+    main_menu()
 
 
 if __name__ == '__main__':
     main()
+    
