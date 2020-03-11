@@ -1,16 +1,32 @@
 from copy import copy
+from colorama import Fore, Back, Style 
 
 class State:
-    def __init__(self, board, player):
+    score = {}
+
+    def __init__(self, board, player, s1, s2):
         self.board = board
         self.player = player
+        self.score[1] = s1
+        self.score[2] = s2
 
     def print(self):
-        print('    A   B   C   D   E   F   G   H')
-        print('   --------------------------------')
-        for i in range(len(self.board)):
-            print(str(i) + ' | ' + ' | '.join(str(cell) for cell in self.board[i]) + ' |')
-            print('  | -   -   -   -   -   -   -   -')
+        print('     A    B    C    D    E    F    G    H')
+        print('    ---------------------------------------')
+        for row in range(len(self.board)):
+            print(' ' + str(row) + ' | ', end="")
+            for piece in self.board[row]:
+                if piece == 1:
+                    print (Back.RED + '  ', end="")
+                    print(Style.RESET_ALL, end="")
+                elif piece == 2:
+                    print (Back.BLUE + '  ', end="")
+                    print(Style.RESET_ALL, end="")
+                else:
+                    print ('  ', end="")
+                print (' | ', end="")
+            print('\n' + '   | --   --   --   --   --   --   --   --')
+
 
 def add(t1: tuple, t2: tuple) -> tuple:
     return (t1[0] + t2[0], t1[1] + t2[1])
@@ -18,28 +34,33 @@ def mult(t: tuple, f: int) -> tuple:
     return (t[0] * f, t[1] * f)
 
 class Eximo:
-    start_state = State([ [0, 1, 1, 1, 1, 1, 1, 0],
-                    [0, 1, 1, 1, 1, 1, 1, 0], 
-                    [0, 1, 1, 0, 0, 1, 1, 0], 
-                    [0, 0, 0, 0, 0, 0, 0, 0], 
-                    [0, 0, 0, 0, 0, 0, 0, 0], 
-                    [0, 2, 2, 0, 0, 2, 2, 0], 
-                    [0, 2, 2, 2, 2, 2, 2, 0], 
-                    [0, 2, 2, 2, 2, 2, 2, 0]], 1)
+    start_state = State([
+        [0, 1, 1, 1, 1, 1, 1, 0],
+        [0, 1, 1, 1, 1, 1, 1, 0], 
+        [0, 1, 1, 0, 0, 1, 1, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 2, 2, 0, 0, 2, 2, 0], 
+        [0, 2, 2, 2, 2, 2, 2, 0], 
+        [0, 2, 2, 2, 2, 2, 2, 0]], 1, 16, 16)
+    player = {}
 
-    def __init__(self, player1: str, player2: str):
-        self.player1 = player1
-        self.player2 = player2
+    def __init__(self, p1: str, p2: str):
+        self.player[1] = p1
+        self.player[2] = p2
 
     def play(self):
-        while True:
+        state = self.start_state
+        while not self.game_over(state):
+            state.print()
+
             self.select_cell()
         
     def game_over(self, state: State) -> bool:
-        if state.board.count(1) == 0:
+        if self.player[1][2] == 0:
             print("player 2 won")
             return True
-        elif state.board.count(2) == 0:
+        elif self.player[2][2] == 0:
             print("player 1 won")
             return True
         return False
@@ -58,6 +79,11 @@ class Eximo:
 
     def place_piece(self, state: State, pos: tuple, piece: int) -> None:
         state.board[pos[0]][pos[1]] = piece
+    
+    def remove_piece(self, state: State, pos: tuple) -> None:
+        player = self.get_piece(state, pos)
+        self.place_piece(state, pos, 0)
+        state.score[player] -= 1
 
     def is_empty(self, state: State, pos: tuple) -> bool:
         return self.get_piece(state, pos) == 0
@@ -150,7 +176,7 @@ class Eximo:
 
         n_state = copy(state)
         self.place_piece(n_state, pos, 0)
-        self.place_piece(n_state, t_pos, 0)
+        self.remove_piece(n_state, t_pos)
         self.place_piece(n_state, n_pos, state.player)
         
         return n_state
