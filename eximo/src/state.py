@@ -11,10 +11,11 @@ class State:
         self.moves = moves
 
     def print(self):
+        print()
         print('     A    B    C    D    E    F    G    H')
         print('    ---------------------------------------')
         for row in range(len(self.board)):
-            print(' ' + str(row) + ' | ', end="")
+            print(' ' + str(row + 1) + ' | ', end="")
             for piece in self.board[row]:
                 if piece == 1:
                     print (Back.RED + '  ', end="")
@@ -26,3 +27,5 @@ class State:
                     print ('  ', end="")
                 print (' | ', end="")
             print('\n' + '   | --   --   --   --   --   --   --   --')
+        print('Player 1: ' + str(self.score[1]) + ' | Player 2: ' + str(self.score[2]))
+        print('Moves left: ' + str(self.moves))
