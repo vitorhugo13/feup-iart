@@ -7,14 +7,14 @@ from aux import *
 
 class Eximo:
     start_state = State([
-        [0, 2, 2, 2, 2, 2, 2, 0],
-        [0, 2, 2, 2, 2, 2, 2, 0], 
+        [0, 2, 0, 2, 2, 2, 2, 0],
+        [0, 1, 2, 2, 2, 2, 2, 0], 
         [0, 2, 2, 0, 0, 2, 2, 0], 
-        [0, 0, 1, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 1, 1, 0, 0, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, 1)
+        [0, 0, 1, 0, 1, 1, 1, 0], 
+        [0, 1, 0, 0, 1, 1, 1, 0]], 1, 16, 16, 1)
     player = {}
 
     def __init__(self, p1: str, p2: str):
@@ -52,10 +52,13 @@ class Eximo:
         return False
             
     def player_move(self, state: State) -> State:
-        # TODO: check if the player needs to capture enemy pieces
+        capture = self.check_capture(state)
 
         while True:
             pos = self.sel_piece(state)
+            while capture and pos not in capture:
+                pos = self.sel_piece(state)
+
             dir = self.sel_direction()
             
             if self.can_move(state, pos, dir):
@@ -89,13 +92,13 @@ class Eximo:
                 return Direction.EAST
 
     def sel_dropzone(self, state: State) -> State:
-        row_c = 2 if (state.player == 1) else 7
+        row_c = 2 if (state.player == 1) else 8
         while True:
             row = int(input('Row (1-8): '))
             col = ord(input('Col (A-H): ').lower()) - 97
             pos = (row, col)
 
-            if (pos >= (row_c, 1) and pos <= (row_c, 6)) or (pos >= (row_c - 1, 1) and pos <= (row_c - 1, 6)) and self.is_empty(state, pos):
+            if col in range(1, 8) and row in range(row_c - 2, row_c) and self.is_empty(state, pos):
                 return self.place_piece(state, pos, state.player)
 
     
@@ -151,15 +154,20 @@ class Eximo:
         state.moves += ret
         return ret  
 
-    def check_capture(self, state: State) -> bool:
+    def check_capture(self, state: State) -> list:
+        ret = []
         for row in range(len(state.board)):
             for col in range(len(state.board[row])):
                 if not self.is_players(state, (row, col)):
                     continue
 
-                if self.can_capture(state, (row, col), Direction.WEST) or self.can_capture(state, (row, col), Direction.NORTHWEST) or self.can_capture(state, (row, col), Direction.NORTH) or self.can_capture(state, (row, col), Direction.NORTHEAST) or self.can_capture(state, (row, col), Direction.EAST):
-                    return True
-        return False
+                if (self.can_capture(state, (row, col), Direction.WEST) or 
+                    self.can_capture(state, (row, col), Direction.NORTHWEST) or 
+                    self.can_capture(state, (row, col), Direction.NORTH) or 
+                    self.can_capture(state, (row, col), Direction.NORTHEAST) or 
+                    self.can_capture(state, (row, col), Direction.EAST)):
+                    ret.append((row, col))
+        return ret
     
     def get_piece(self, state: State, pos: tuple) -> int:
         return state.board[pos[0]][pos[1]]
