@@ -8,8 +8,8 @@ from aux import *
 class Eximo:
     start_state = State([
         [0, 2, 0, 2, 2, 2, 2, 0],
-        [0, 1, 2, 2, 2, 2, 2, 0], 
-        [0, 2, 2, 0, 0, 2, 2, 0], 
+        [0, 2, 2, 2, 2, 2, 2, 0], 
+        [1, 2, 2, 0, 0, 2, 2, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 1, 1, 0, 0, 1, 1, 0], 
@@ -29,10 +29,11 @@ class Eximo:
             print(Style.RESET_ALL, end="")
             state = self.player_move(state)
             state.print()
-            pieces = self.check_last_row(state)
-            while pieces > 0:
+            if self.last_row(state):
+                state = self.remove_last_row(state)
+                state.print()
                 state = self.sel_dropzone(state)
-                pieces -= 1
+                state = self.sel_dropzone(state)
             state = self.change_player(state)
                 
     def change_player(self, state: State) -> State:
@@ -62,15 +63,21 @@ class Eximo:
             dir = self.sel_direction()
             
             if self.can_move(state, pos, dir):
-                return self.move(state, pos, dir)
+                n_state = self.move(state, pos, dir)
+                break
             elif self.can_jump(state, pos, dir):
-                return self.jump_combo(state, pos, dir)
+                n_state = self.jump_combo(state, pos, dir)
+                break
             elif self.can_capture(state, pos, dir):
-                return self.capture_combo(state, pos, dir)
+                n_state = self.capture_combo(state, pos, dir)
+                break
+        
+        n_state.moves -= 1
+        return n_state
     
     def sel_piece(self, state: State) -> tuple:
         while True:
-            row = int(input('Row (1-8): '))
+            row = int(input('Row (1-8): ')) - 1
             col = ord(input('Col (A-H): ').lower()) - 97
 
             if self.valid_position((row, col)) and self.is_players(state, (row, col)):
@@ -92,22 +99,39 @@ class Eximo:
                 return Direction.EAST
 
     def sel_dropzone(self, state: State) -> State:
-        row_c = 2 if (state.player == 1) else 8
+        row_c = 2 if (state.player == 2) else 8
+        if self.is_dropzone_full(state, row_c - 1):
+            print('full ' + str(row_c))
+            return state
+
+        print(Fore.GREEN + 'Player ' + str(state.player) + " place a new piece!")
+        print(Style.RESET_ALL, end="")
+
         while True:
-            row = int(input('Row (1-8): '))
+            row = int(input('Row (1-8): ')) - 1
             col = ord(input('Col (A-H): ').lower()) - 97
             pos = (row, col)
 
             if col in range(1, 8) and row in range(row_c - 2, row_c) and self.is_empty(state, pos):
-                return self.place_piece(state, pos, state.player)
+                self.place_piece(state, pos, state.player)
+                state.print()
+                return state
 
+    def is_dropzone_full(self, state: State, row: int) -> bool:
+        return not (0 in state.board[row][1:6] or 0 in state.board[row - 1][1:6])
     
     def jump_combo(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.jump(state, pos, vec)
         n_state.print()
-            
+        
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir * 2))
+
+        if self.in_last_row(n_pos):
+            return state
+
+        print(Fore.GREEN + 'Player ' + str(state.player) + " keep jumping!")
+        print(Style.RESET_ALL, end="")
 
         if not (self.can_jump(state, pos, Direction.NORTHWEST) or
                 self.can_jump(state, pos, Direction.NORTH) or
@@ -124,9 +148,15 @@ class Eximo:
     def capture_combo(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.capture(state, pos, vec)
         n_state.print()
-            
+
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir * 2))
+
+        if self.in_last_row(n_pos):
+            return state
+
+        print(Fore.GREEN + 'Player ' + str(state.player) + " keep capturing!")
+        print(Style.RESET_ALL, end="")
 
         if not (self.can_capture(state, pos, Direction.WEST) or 
                 self.can_capture(state, pos, Direction.NORTHWEST) or 
@@ -142,17 +172,25 @@ class Eximo:
 
         return self.capture_combo(n_state, n_pos, dir)
 
-    # checks if the player has any piece in the last row, removes 
-    # those pieces and returns the number of pieces removed
-    def check_last_row(self, state: State) -> int:
-        ret = 0
+    def in_last_row(self, pos: tuple) -> bool:
+        return pos[0] == 0 or pos[0] == 7
+
+    def last_row(self, state: State) -> bool:
         row = 0 if (state.player == 1) else 7
         for col in range(len(state.board[row])):
-            if state.player == state.board[row][col]:
-                self.remove_piece(state, (row, col))
-                ret += 1
-        state.moves += ret
-        return ret  
+            if self.is_players(state, (row, col)):
+                return True
+        return False
+
+    def remove_last_row(self, state: State) -> State:
+        row = 0 if (state.player == 1) else 7
+        n_state = copy(state)
+        for col in range(len(state.board[row])):
+            if self.is_players(state, (row, col)):
+                n_state.moves += 2
+                self.remove_piece(n_state, (row, col))
+                return n_state
+        return state
 
     def check_capture(self, state: State) -> list:
         ret = []
@@ -204,7 +242,6 @@ class Eximo:
     def can_move(self, state: State, pos: tuple, vec: tuple) -> bool:
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir))
-        print(n_pos)
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
             return False
         
