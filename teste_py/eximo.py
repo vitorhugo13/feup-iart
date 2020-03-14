@@ -1,9 +1,7 @@
-from colorama import Fore, Back, Style 
 from copy import copy
 
 from state import *
 from aux import *
-
 
 class Eximo:
     start_state = State([
@@ -24,17 +22,18 @@ class Eximo:
     def play(self):
         state = self.start_state
         while not self.game_over(state):
-            state.print()
-            print(Fore.GREEN + 'Player ' + str(state.player) + "\'s turn")
-            print(Style.RESET_ALL, end="")
+            state.draw()
+            print('Player ' + str(state.player) + "\'s turn")
             state = self.player_move(state)
-            state.print()
+            state.draw()
             pieces = self.check_last_row(state)
             while pieces > 0:
                 state = self.sel_dropzone(state)
                 pieces -= 1
             state = self.change_player(state)
-                
+
+ 
+
     def change_player(self, state: State) -> State:
         if state.moves > 0:
             return state
@@ -104,7 +103,7 @@ class Eximo:
     
     def jump_combo(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.jump(state, pos, vec)
-        n_state.print()
+        n_state.draw()
             
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir * 2))
@@ -123,7 +122,7 @@ class Eximo:
 
     def capture_combo(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.capture(state, pos, vec)
-        n_state.print()
+        n_state.draw()
             
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir * 2))
@@ -322,4 +321,7 @@ class Eximo:
         return self.capture(state, pos, (0, 1))
     def capture_north_west(self, state: State, pos: tuple) -> State:
         return self.capture(state, pos, (1, 1))
+
+
+
 
