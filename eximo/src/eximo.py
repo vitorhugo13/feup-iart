@@ -359,18 +359,4 @@ class Eximo:
     def capture_north_west(self, state: State, pos: tuple) -> State:
         return self.capture(state, pos, (1, 1))
 
-
-    def max_turn(self, state: State, depth: int) -> State:
-        if self.game_over(state):
-            return state
-        
-        max = state
-
-        for row in range(len(state.board)):
-            for cell in range(len(state.board[row])):
-                
-                for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
-                    
-        
     
-    def min_turn(self, state: State, depth: int) -> State:
