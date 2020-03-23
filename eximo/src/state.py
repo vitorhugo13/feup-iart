@@ -1,14 +1,15 @@
 from colorama import Fore, Back, Style 
+import enum
 
 class State:
     score = {}
 
-    def __init__(self, board, player, s1, s2, moves):
+    def __init__(self, board, player, s1, s2, action):
         self.board = board
         self.player = player
         self.score[1] = s1
         self.score[2] = s2
-        self.moves = moves
+        self.action = action 
 
     def print(self):
         print()
@@ -29,3 +30,22 @@ class State:
             print('\n' + '   | --   --   --   --   --   --   --   --')
         print('Player 1: ' + str(self.score[1]) + ' | Player 2: ' + str(self.score[2]))
         print('Moves left: ' + str(self.moves))
+
+
+class Jump:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+
+class Capture:
+
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+class Place:
+
+    def __init__(self, pieces_left):
+        self.pieces_left = pieces_left
