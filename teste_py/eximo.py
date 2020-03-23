@@ -1,20 +1,18 @@
-from colorama import Fore, Back, Style 
 from copy import copy
 
 from state import *
 from aux import *
 
-
 class Eximo:
     start_state = State([
-        [0, 2, 2, 2, 2, 2, 2, 0],
-        [0, 2, 2, 2, 2, 2, 2, 0], 
+        [0, 2, 0, 2, 2, 2, 2, 0],
+        [0, 1, 2, 2, 2, 2, 2, 0], 
         [0, 2, 2, 0, 0, 2, 2, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 1, 1, 0, 0, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, 1)
+        [0, 0, 1, 0, 1, 1, 1, 0], 
+        [0, 1, 0, 0, 1, 1, 1, 0]], 1, 16, 16, 1)
     player = {}
 
     def __init__(self, p1: str, p2: str):
@@ -24,18 +22,18 @@ class Eximo:
     def play(self):
         state = self.start_state
         while not self.game_over(state):
-            state.print()
-            print(Fore.GREEN + 'Player ' + str(state.player) + "\'s turn")
-            print(Style.RESET_ALL, end="")
+            state.draw()
+            print('Player ' + str(state.player) + "\'s turn")
             state = self.player_move(state)
-            state.print()
-            if self.last_row(state):
-                state = self.remove_last_row(state)
-                state.print()
+            state.draw()
+            pieces = self.check_last_row(state)
+            while pieces > 0:
                 state = self.sel_dropzone(state)
-                state = self.sel_dropzone(state)
+                pieces -= 1
             state = self.change_player(state)
-                
+
+ 
+
     def change_player(self, state: State) -> State:
         if state.moves > 0:
             return state
@@ -63,21 +61,15 @@ class Eximo:
             dir = self.sel_direction()
             
             if self.can_move(state, pos, dir):
-                n_state = self.move(state, pos, dir)
-                break
+                return self.move(state, pos, dir)
             elif self.can_jump(state, pos, dir):
-                n_state = self.jump_combo(state, pos, dir)
-                break
+                return self.jump_combo(state, pos, dir)
             elif self.can_capture(state, pos, dir):
-                n_state = self.capture_combo(state, pos, dir)
-                break
-        
-        n_state.moves -= 1
-        return n_state
+                return self.capture_combo(state, pos, dir)
     
     def sel_piece(self, state: State) -> tuple:
         while True:
-            row = int(input('Row (1-8): ')) - 1
+            row = int(input('Row (1-8): '))
             col = ord(input('Col (A-H): ').lower()) - 97
 
             if self.valid_position((row, col)) and self.is_players(state, (row, col)):
@@ -99,39 +91,22 @@ class Eximo:
                 return Direction.EAST
 
     def sel_dropzone(self, state: State) -> State:
-        row_c = 2 if (state.player == 2) else 8
-        if self.is_dropzone_full(state, row_c - 1):
-            print('full ' + str(row_c))
-            return state
-
-        print(Fore.GREEN + 'Player ' + str(state.player) + " place a new piece!")
-        print(Style.RESET_ALL, end="")
-
+        row_c = 2 if (state.player == 1) else 8
         while True:
-            row = int(input('Row (1-8): ')) - 1
+            row = int(input('Row (1-8): '))
             col = ord(input('Col (A-H): ').lower()) - 97
             pos = (row, col)
 
             if col in range(1, 8) and row in range(row_c - 2, row_c) and self.is_empty(state, pos):
-                self.place_piece(state, pos, state.player)
-                state.print()
-                return state
+                return self.place_piece(state, pos, state.player)
 
-    def is_dropzone_full(self, state: State, row: int) -> bool:
-        return not (0 in state.board[row][1:6] or 0 in state.board[row - 1][1:6])
     
     def jump_combo(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.jump(state, pos, vec)
-        n_state.print()
-        
+        n_state.draw()
+            
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir * 2))
-
-        if self.in_last_row(n_pos):
-            return state
-
-        print(Fore.GREEN + 'Player ' + str(state.player) + " keep jumping!")
-        print(Style.RESET_ALL, end="")
 
         if not (self.can_jump(state, pos, Direction.NORTHWEST) or
                 self.can_jump(state, pos, Direction.NORTH) or
@@ -147,16 +122,10 @@ class Eximo:
 
     def capture_combo(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.capture(state, pos, vec)
-        n_state.print()
-
+        n_state.draw()
+            
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir * 2))
-
-        if self.in_last_row(n_pos):
-            return state
-
-        print(Fore.GREEN + 'Player ' + str(state.player) + " keep capturing!")
-        print(Style.RESET_ALL, end="")
 
         if not (self.can_capture(state, pos, Direction.WEST) or 
                 self.can_capture(state, pos, Direction.NORTHWEST) or 
@@ -172,25 +141,17 @@ class Eximo:
 
         return self.capture_combo(n_state, n_pos, dir)
 
-    def in_last_row(self, pos: tuple) -> bool:
-        return pos[0] == 0 or pos[0] == 7
-
-    def last_row(self, state: State) -> bool:
+    # checks if the player has any piece in the last row, removes 
+    # those pieces and returns the number of pieces removed
+    def check_last_row(self, state: State) -> int:
+        ret = 0
         row = 0 if (state.player == 1) else 7
         for col in range(len(state.board[row])):
-            if self.is_players(state, (row, col)):
-                return True
-        return False
-
-    def remove_last_row(self, state: State) -> State:
-        row = 0 if (state.player == 1) else 7
-        n_state = copy(state)
-        for col in range(len(state.board[row])):
-            if self.is_players(state, (row, col)):
-                n_state.moves += 2
-                self.remove_piece(n_state, (row, col))
-                return n_state
-        return state
+            if state.player == state.board[row][col]:
+                self.remove_piece(state, (row, col))
+                ret += 1
+        state.moves += ret
+        return ret  
 
     def check_capture(self, state: State) -> list:
         ret = []
@@ -235,12 +196,14 @@ class Eximo:
         return -1
     
     def valid_position(self, pos: tuple) -> bool:
-        return pos[0] in range(0, 8) and pos[1] in range(0, 8)
+        return pos[0] >= 0 and pos[0] <= 7 and pos[1] >= 0 and pos[1] <= 7
+
 
     # ORDINARY MOVE OPERATORS
     def can_move(self, state: State, pos: tuple, vec: tuple) -> bool:
         dir = self.get_direction(state)
         n_pos = add(pos, mult(vec, dir))
+        print(n_pos)
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
             return False
         
@@ -360,17 +323,5 @@ class Eximo:
         return self.capture(state, pos, (1, 1))
 
 
-    def max_turn(self, state: State, depth: int) -> State:
-        if self.game_over(state):
-            return state
-        
-        max = state
 
-        for row in range(len(state.board)):
-            for cell in range(len(state.board[row])):
-                
-                for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
-                    
-        
-    
-    def min_turn(self, state: State, depth: int) -> State:
+
