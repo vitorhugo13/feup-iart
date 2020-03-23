@@ -1,5 +1,5 @@
 from colorama import Fore, Back, Style 
-import enum
+from copy import copy
 
 class State:
     score = {}
@@ -7,9 +7,9 @@ class State:
     def __init__(self, board, player, s1, s2, action):
         self.board = board
         self.player = player
+        self.action = action 
         self.score[1] = s1
         self.score[2] = s2
-        self.action = action 
 
     def print(self):
         print()
@@ -32,20 +32,26 @@ class State:
         print('Moves left: ' + str(self.moves))
 
 
-class Jump:
+class Action:
+    def __init__(self, type: str):
+        self.type = type 
 
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
+class Start(Action):
+    def __init__(self):
+        self = Action("start")
 
+class Jump(Action):
+    def __init__(self, pos: tuple):
+        self = Action("jump")
+        self.pos = pos
+        
+class Capture(Action):
+    def __init__(self, pos: tuple):
+        self = Action("capture")
+        self.pos = pos
 
-class Capture:
-
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-class Place:
-
+class Place(Action):
     def __init__(self, pieces_left):
+        self = Action("place")
         self.pieces_left = pieces_left
+
