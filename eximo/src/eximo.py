@@ -7,14 +7,14 @@ from aux import *
 
 class Eximo:
     start_state = State([
-        [0, 2, 0, 2, 2, 2, 2, 0],
+        [0, 2, 2, 2, 2, 2, 2, 0],
         [0, 2, 2, 2, 2, 2, 2, 0], 
-        [1, 2, 2, 0, 0, 2, 2, 0], 
+        [0, 2, 2, 0, 0, 2, 2, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 1, 1, 0, 0, 1, 1, 0], 
-        [0, 0, 1, 0, 1, 1, 1, 0], 
-        [0, 1, 0, 0, 1, 1, 1, 0]], 1, 16, 16, 1)
+        [0, 0, 1, 1, 1, 1, 1, 0], 
+        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, 1)
     player = {}
 
     def __init__(self, p1: str, p2: str):
@@ -235,8 +235,7 @@ class Eximo:
         return -1
     
     def valid_position(self, pos: tuple) -> bool:
-        return pos[0] >= 0 and pos[0] <= 7 and pos[1] >= 0 and pos[1] <= 7
-
+        return pos[0] in range(0, 8) and pos[1] in range(0, 8)
 
     # ORDINARY MOVE OPERATORS
     def can_move(self, state: State, pos: tuple, vec: tuple) -> bool:
@@ -360,3 +359,18 @@ class Eximo:
     def capture_north_west(self, state: State, pos: tuple) -> State:
         return self.capture(state, pos, (1, 1))
 
+
+    def max_turn(self, state: State, depth: int) -> State:
+        if self.game_over(state):
+            return state
+        
+        max = state
+
+        for row in range(len(state.board)):
+            for cell in range(len(state.board[row])):
+                
+                for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
+                    
+        
+    
+    def min_turn(self, state: State, depth: int) -> State:
