@@ -29,6 +29,9 @@ class State:
                 print (' | ', end="")
             print('\n' + '   | --   --   --   --   --   --   --   --')
         print('Player 1: ' + str(self.score[1]) + ' | Player 2: ' + str(self.score[2]))
+        
+        print(Fore.GREEN + 'Player ' + str(self.player) + ' ' + self.action.type + '!')
+        print(Style.RESET_ALL, end="")
 
 
 class Start:

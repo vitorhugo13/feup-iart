@@ -66,6 +66,40 @@ test_state_5 = State([
     [0, 1, 1, 1, 1, 1, 1, 0], 
     [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, Capture((5,2)))
 
+
+
+test_state_6 = State([
+    [0, 2, 2, 1, 2, 2, 2, 0],
+    [0, 2, 2, 2, 2, 2, 2, 0], 
+    [0, 2, 2, 0, 0, 2, 2, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 1, 1, 0, 0, 1, 1, 0], 
+    [0, 1, 1, 0, 1, 0, 1, 0], 
+    [0, 1, 0, 1, 0, 1, 1, 0]], 1, 16, 16, Place(2))
+
+
+test_state_7 = State([
+    [0, 2, 2, 1, 2, 2, 2, 0],
+    [0, 2, 2, 2, 2, 2, 2, 0], 
+    [0, 2, 2, 0, 0, 2, 2, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 1, 1, 0, 0, 1, 1, 0], 
+    [0, 1, 1, 0, 1, 1, 1, 0], 
+    [0, 1, 1, 1, 0, 1, 1, 0]], 1, 16, 16, Place(1))
+
+test_state_8 = State([
+    [0, 2, 2, 1, 2, 2, 2, 0],
+    [0, 2, 2, 2, 2, 2, 2, 0], 
+    [0, 2, 2, 0, 0, 2, 2, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 1, 1, 0, 0, 1, 1, 0], 
+    [0, 1, 1, 1, 1, 1, 1, 0], 
+    [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, Place(1))
+
+
 def test_move():
     print("North")
     state = game.move(start_state, (5, 1), (1, 0))
@@ -123,12 +157,31 @@ def test_capture_combo():
     state = game.capture_combo(test_state_5,(1,0))
     if (state != None): state.print()
 
+def test_place_piece():
+
+    #2 pieces left
+    state = game.place(test_state_6, (7,4))
+    if (state != None): state.print()
+
+    state = game.place(state, (7,2))
+    if (state != None): state.print()
+
+    #1 cell @dropzone
+    state = game.place(test_state_7, (7,4))
+    if (state != None): state.print()
+
+    state = game.place(state, (7,2))
+    if (state != None): state.print()
+
+    #dropbox full
+    state = game.place(test_state_8, (7,4))
+    if (state != None): state.print()
+
 # test_move()
 # test_jump_start()
 # test_jump_combo()
 # test_capture_start()
 # test_capture_combo()
-
-# all okay. Need to test Place
+# test_place_piece()
 
 
