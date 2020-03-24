@@ -440,8 +440,17 @@ class Eximo:
     def place(self, state: State, pos: tuple) -> State:
         if state.action.type != "place":
             return None
-        
-        if not self.valid_position(pos) or not self.is_empty(state, pos):
+
+        row = 2 if state.player == 2 else 8
+        if  pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not state.is_empty(state, pos):
             return None
+
+        n_state = copy(state)
+        self.place_piece(n_state, pos, n_state.player)
+        n_state.action.pieces -= 1
         
-        pass
+        if n_state.action.pieces == 0:
+            n_state.action = Start()
+            self.change_player(n_state)
+        
+        return n_state
