@@ -118,7 +118,7 @@ class Eximo:
     def is_dropzone_full(self, state: State, row: int) -> bool:
         return not (0 in state.board[row][1:6] or 0 in state.board[row - 1][1:6])
     
-    def jump_combo(self, state: State, pos: tuple, vec: tuple) -> State:
+    def jump_combo1(self, state: State, pos: tuple, vec: tuple) -> State:
         n_state = self.jump(state, pos, vec)
         n_state.print()
         
@@ -174,7 +174,7 @@ class Eximo:
         return pos[0] == 0 or pos[0] == 7
 
     def last_row(self, state: State) -> bool:
-        row = 0 if (state.player == 1) else 7
+        row = 0 if state.player == 1 else 7
         for col in range(len(state.board[row])):
             if self.is_ally(state, (row, col)):
                 return True
@@ -223,14 +223,12 @@ class Eximo:
     def is_ally(self, state: State, pos: tuple) -> bool:
         return self.get_piece(state, pos) == state.player
     
-    def is_opponents(self, state: State, pos: tuple) -> bool:
+    def is_enemy(self, state: State, pos: tuple) -> bool:
         return not self.is_empty(state, pos) and not self.is_ally(state, pos)
 
     # returns the movement direction multiplier 
     def get_direction(self, state: State) -> int:
-        if state.player == 2:
-            return 1
-        return -1
+        return 1 if state.player == 2 else -1
     
     def valid_position(self, pos: tuple) -> bool:
         return pos[0] in range(0, 8) and pos[1] in range(0, 8)
@@ -245,7 +243,7 @@ class Eximo:
         return True
 
     def move(self, state: State, pos: tuple, vec: tuple) -> State:
-        if state.action.type != Start().type:
+        if state.action.type != "start":
             return None
         
         if not self.is_ally(state, pos):
@@ -291,7 +289,7 @@ class Eximo:
         return True
 
     def jump_start(self, state: State, pos: tuple, vec: tuple) -> State:
-        if state.action.type != Start().type:
+        if state.action.type != "start":
             return None
         
         if not self.is_ally(state, pos):
@@ -322,7 +320,8 @@ class Eximo:
         return n_state
 
     def jump_combo(self, state: State, vec: tuple) -> State:
-        if state.action.type != Jump().type:
+        if state.action.type != "jump":
+            print(state.action.type)
             return None
         
         dir = self.get_direction(state)
@@ -361,7 +360,7 @@ class Eximo:
         dir = self.get_direction(state)
 
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_opponents(state, t_pos):
+        if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
             return False
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -371,7 +370,7 @@ class Eximo:
         return True
 
     def capture_start(self, state: State, pos: tuple, vec: tuple) -> State:
-        if state.action.type != Start().type:
+        if state.action.type != "start":
             return None
 
         if not self.is_ally(state, pos):
@@ -380,7 +379,7 @@ class Eximo:
         dir = self.get_direction(state)
 
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_opponents(state, t_pos):
+        if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
             return None
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -399,16 +398,16 @@ class Eximo:
 
         return n_state
 
-    def capture_combo(self, state: State, pos: tuple, vec: tuple) -> State:
+    def capture_combo(self, state: State, vec: tuple) -> State:
         
-        if state.action.type != Capture().type:
+        if state.action.type != "capture":
             return None
 
         dir = self.get_direction(state)
         pos = state.action.pos
 
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_opponents(state, t_pos):
+        if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
             return state
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -438,4 +437,11 @@ class Eximo:
     def capture_north_west(self, state: State, pos: tuple) -> State:
         return self.capture(state, pos, (1, 1))
 
-    
+    def place(self, state: State, pos: tuple) -> State:
+        if state.action.type != "place":
+            return None
+        
+        if not self.valid_position(pos) or not self.is_empty(state, pos):
+            return None
+        
+        pass

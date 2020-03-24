@@ -29,29 +29,28 @@ class State:
                 print (' | ', end="")
             print('\n' + '   | --   --   --   --   --   --   --   --')
         print('Player 1: ' + str(self.score[1]) + ' | Player 2: ' + str(self.score[2]))
-        print('Moves left: ' + str(self.moves))
 
 
-class Action:
-    def __init__(self, type: str):
-        self.type = type 
-
-class Start(Action):
+class Start:
+    type = "start"
     def __init__(self):
-        self = Action("start")
+        self.type = "start"
 
-class Jump(Action):
+class Jump:
+    type = "jump"
+    pos = (0,0)
     def __init__(self, pos: tuple):
-        self = Action("jump")
         self.pos = pos
         
-class Capture(Action):
+class Capture:
+    type = "capture"
+    pos = (0,0)
     def __init__(self, pos: tuple):
-        self = Action("capture")
         self.pos = pos
 
-class Place(Action):
-    def __init__(self, pieces_left):
-        self = Action("place")
-        self.pieces_left = pieces_left
+class Place:
+    type = "place"
+    pieces = 0
+    def __init__(self, pieces):
+        self.pieces = pieces
 
