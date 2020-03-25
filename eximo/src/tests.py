@@ -191,7 +191,6 @@ def test_place_piece():
 
 
 def test_get_children():
-    print('hello')
     states = game.get_children(test_state_5)
     
     # for state in states:

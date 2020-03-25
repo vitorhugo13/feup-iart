@@ -27,11 +27,9 @@ class Eximo:
             state.print()
             state = self.player_move(state)
 
-    def change_player(self, state: State) -> State:
-        new_state = state.copy()
-        new_state.player = state.player % 2 + 1
-        new_state.action = Start()
-        return new_state
+    def change_player(self, state: State) -> None:
+        state.player = state.player % 2 + 1
+        state.action = Start()
 
     def game_over(self, state: State) -> bool:
         if state.score[1] == 0:
@@ -214,19 +212,16 @@ class Eximo:
 
     def capture(self, state: State, pos: tuple, vec: tuple) -> State:
         if not self.is_ally(state, pos):
-            print('ret1')
             return None
         
         dir = self.get_direction(state)
 
         t_pos = add(pos, mult(vec, dir))
         if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
-            print('ret2')
             return None
         
         n_pos = add(pos, mult(vec, dir * 2))
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
-            print('ret3')
             return None
 
         n_state = state.copy()
@@ -237,7 +232,7 @@ class Eximo:
             self.enter_place_mode(n_state)
         else:
             self.place_piece(n_state, n_pos, state.player)
-            if  not (self.can_capture(n_state, dir, n_pos, Direction.WEST) or 
+            if not (self.can_capture(n_state, dir, n_pos, Direction.WEST) or 
                 self.can_capture(n_state, dir, n_pos, Direction.NORTHWEST) or 
                 self.can_capture(n_state, dir, n_pos, Direction.NORTH) or 
                 self.can_capture(n_state, dir, n_pos, Direction.NORTHEAST) or 
@@ -363,6 +358,6 @@ class Eximo:
             
             tmp_states.extend(self.get_children(state))
             ret_states.remove(state)
-
+            
         ret_states.extend(tmp_states)
         return ret_states
