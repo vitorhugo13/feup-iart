@@ -165,7 +165,7 @@ def test_capture_start():
 
 def test_capture_combo():
     #JUMP_COMBO
-    state = game.capture_combo(test_state_5,(1,0))
+    state = game.capture(test_state_5, test_state_5.action.pos, (1,0))
     if (state != None): state.print()
 
 def test_place_piece():
@@ -191,11 +191,12 @@ def test_place_piece():
 
 
 def test_get_children():
-    states = game.get_children(test_state_9)
+    print('hello')
+    states = game.get_children(test_state_5)
     
-    for state in states:
-        state.print()
-    
+    # for state in states:
+        # state.print()
+    print(len(states))
 
 # test_move()
 # test_jump_start()
@@ -204,4 +205,5 @@ def test_get_children():
 # test_capture_combo()
 # test_place_piece()
 test_get_children()
+
 

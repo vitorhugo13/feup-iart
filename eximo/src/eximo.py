@@ -178,11 +178,11 @@ class Eximo:
 
         t_pos = add(pos, mult(vec, dir))
         if not self.valid_position(t_pos) or not self.is_ally(state, t_pos):
-            return state
+            return None
         
         n_pos = add(pos, mult(vec, dir * 2))
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
-            return state
+            return None
 
         n_state = state.copy()
         self.remove_piece(n_state, pos)
@@ -214,16 +214,19 @@ class Eximo:
 
     def capture(self, state: State, pos: tuple, vec: tuple) -> State:
         if not self.is_ally(state, pos):
+            print('ret1')
             return None
         
         dir = self.get_direction(state)
 
         t_pos = add(pos, mult(vec, dir))
         if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
+            print('ret2')
             return None
         
         n_pos = add(pos, mult(vec, dir * 2))
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
+            print('ret3')
             return None
 
         n_state = state.copy()
@@ -343,18 +346,17 @@ class Eximo:
         elif state.action.type == "capture":
             # TODO: check all the moves that the capturing piece can do
             for vec in [Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST]:
-                n_state = self.capture(state, pos, vec)
+                n_state = self.capture(state, state.action.pos, vec)
                 if n_state != None: ret_states.append(n_state)
             
         elif state.action.type == "jump":
             # TODO: check all the jumps that the jumping piece can do
             for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
-                n_state = self.jump(state, pos, vec)
+                n_state = self.jump(state, state.action.pos, vec)
                 if n_state != None: ret_states.append(n_state)
 
         # check if a r_state is a start action, if not get_children of that state until a start state          
         tmp_states = []
-        print(len(ret_states))
         for state in ret_states:
             if state.action.type == "start":
                 continue
