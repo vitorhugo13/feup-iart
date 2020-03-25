@@ -8,13 +8,13 @@ from aux import *
 class Eximo:
     start_state = State([
         [0, 2, 2, 2, 2, 2, 2, 0],
-        [0, 2, 2, 2, 2, 2, 2, 0], 
+        [1, 2, 2, 2, 2, 2, 2, 1], 
         [0, 2, 2, 0, 0, 2, 2, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 1, 1, 0, 0, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, Start())
+        [0, 0, 1, 0, 0, 1, 1, 0], 
+        [0, 1, 0, 1, 1, 1, 1, 0], 
+        [0, 1, 0, 1, 1, 1, 1, 0]], 1, 16, 16, Start())
     player = {}
 
     def __init__(self, p1: str, p2: str):
@@ -49,10 +49,9 @@ class Eximo:
             if self.valid_position((row, col)):
                 return (row, col)
 
-    def sel_direction(self) -> tuple:
+    def sel_cp_dir(self) -> tuple:
         while True:
             dir = input('Direction (W|NW|N|NE|E): ').upper()
-
             if dir == 'W':
                 return Direction.WEST
             elif dir == 'NW':
@@ -64,6 +63,16 @@ class Eximo:
             elif dir == 'E':
                 return Direction.EAST
 
+    def sel_mv_dir(self) -> tuple:
+        while True:
+            dir = input('Direction (NW|N|NE): ').upper()
+            if dir == 'NW':
+                return Direction.NORTHWEST
+            elif dir == 'N':
+                return Direction.NORTH
+            elif dir == 'NE':
+                return Direction.NORTHEAST
+    
     def is_dropzone_full(self, state: State) -> bool:
         row = 1 if (state.player == 2) else 7
         return not (0 in state.board[row][1:6] or 0 in state.board[row - 1][1:6])
@@ -91,10 +100,11 @@ class Eximo:
 
     def place_piece(self, state: State, pos: tuple, piece: int) -> None:
         state.board[pos[0]][pos[1]] = piece
+        state.score[piece] += 1
     
     def remove_piece(self, state: State, pos: tuple) -> None:
         player = self.get_piece(state, pos)
-        self.place_piece(state, pos, 0)
+        state.board[pos[0]][pos[1]] = 0
         state.score[player] -= 1
 
     def is_empty(self, state: State, pos: tuple) -> bool:
@@ -136,7 +146,7 @@ class Eximo:
             return None
         
         n_state = copy(state)
-        self.place_piece(n_state, pos, 0)
+        self.remove_piece(n_state, pos)
 
         if self.in_last_row(state, n_pos):
             self.enter_place_mode(n_state)
@@ -174,7 +184,7 @@ class Eximo:
             return state
 
         n_state = copy(state)
-        self.place_piece(n_state, pos, 0)
+        self.remove_piece(n_state, pos)
 
         if self.in_last_row(state, n_pos):
             self.enter_place_mode(n_state)
@@ -216,7 +226,7 @@ class Eximo:
             return None
 
         n_state = copy(state)
-        self.place_piece(n_state, pos, 0)
+        self.remove_piece(n_state, pos)
         self.remove_piece(n_state, t_pos)
 
         if self.in_last_row(state, n_pos):
@@ -265,20 +275,21 @@ class Eximo:
 
             if state.action.type == "start":
                 pos = self.sel_cell()
-                vec = self.sel_direction()
                 if self.check_capture(state):
+                    vec = self.sel_cp_dir()
                     n_state = self.capture(state, pos, vec)
                 else:
+                    vec = self.sel_mv_dir()
                     n_state = self.move(state, pos, vec) or self.jump(state, pos, vec)
 
             elif state.action.type == "jump":
                 pos = state.action.pos
-                vec = self.sel_direction()
+                vec = self.sel_mv_dir()
                 n_state = self.jump(state, pos, vec)
 
             elif state.action.type == "capture":
                 pos = state.action.pos
-                vec = self.sel_direction()
+                vec = self.sel_cp_dir()
                 n_state = self.capture(state, pos, vec)
 
             elif state.action.type == "place":
