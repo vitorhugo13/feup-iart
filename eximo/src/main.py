@@ -9,5 +9,5 @@ from eximo import Eximo
 # print(game.is_dropzone_full(game.start_state, 1))
 
 # test operators
-game = Eximo('P', 'P')
+game = Eximo('P', 'C')
 game.play()

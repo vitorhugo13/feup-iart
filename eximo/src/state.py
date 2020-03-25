@@ -39,6 +39,17 @@ class State:
         print(Fore.GREEN + 'Player ' + str(self.player) + ' ' + self.action.type + '!')
         print(Style.RESET_ALL, end="")
 
+    def next_turn(self):
+        self.player = self.player % 2 + 1
+        self.action = Start()
+
+    def get_piece(self, pos: tuple) -> bool:
+        return self.board[pos[0]][pos[1]]
+
+    def is_empty(self, pos: tuple) -> bool:
+        return self.get_piece(pos) == 0
+
+
 
 class Start:
     type = "start"
