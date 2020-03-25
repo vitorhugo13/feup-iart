@@ -11,6 +11,12 @@ class State:
         self.score[1] = s1
         self.score[2] = s2
 
+    def copy(self):
+        board = [row.copy() for row in self.board]
+        player = self.player + 0
+        action = self.action
+        return State(board, player, self.score[1], self.score[2], action)
+
     def print(self):
         print()
         print('     A    B    C    D    E    F    G    H')

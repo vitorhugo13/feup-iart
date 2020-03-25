@@ -100,6 +100,17 @@ test_state_8 = State([
     [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, Place(1))
 
 
+test_state_9 = State([
+    [0, 0, 0, 0, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 0, 0, 0, 0, 0, 0, 0], 
+    [0, 1, 1, 0, 0, 1, 1, 0], 
+    [0, 1, 1, 1, 1, 1, 1, 0], 
+    [0, 1, 1, 1, 1, 1, 1, 0]], 1, 1, 1, Start())
+
+
 def test_move():
     print("North")
     state = game.move(start_state, (5, 1), (1, 0))
@@ -177,11 +188,20 @@ def test_place_piece():
     state = game.place(test_state_8, (7,4))
     if (state != None): state.print()
 
+
+
+def test_get_children():
+    states = game.get_children(test_state_9)
+    
+    for state in states:
+        state.print()
+    
+
 # test_move()
 # test_jump_start()
 # test_jump_combo()
 # test_capture_start()
 # test_capture_combo()
 # test_place_piece()
-
+test_get_children()
 

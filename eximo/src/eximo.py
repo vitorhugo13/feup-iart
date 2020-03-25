@@ -28,9 +28,10 @@ class Eximo:
             state = self.player_move(state)
 
     def change_player(self, state: State) -> State:
-        state.player = state.player % 2 + 1
-        state.action = Start()
-        return state
+        new_state = state.copy()
+        new_state.player = state.player % 2 + 1
+        new_state.action = Start()
+        return new_state
 
     def game_over(self, state: State) -> bool:
         if state.score[1] == 0:
@@ -145,7 +146,7 @@ class Eximo:
         if not self.is_empty(state, n_pos):
             return None
         
-        n_state = copy(state)
+        n_state = state.copy()
         self.remove_piece(n_state, pos)
 
         if self.in_last_row(state, n_pos):
@@ -183,7 +184,7 @@ class Eximo:
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
             return state
 
-        n_state = copy(state)
+        n_state = state.copy()
         self.remove_piece(n_state, pos)
 
         if self.in_last_row(state, n_pos):
@@ -225,7 +226,7 @@ class Eximo:
         if not self.valid_position(n_pos) or not self.is_empty(state, n_pos):
             return None
 
-        n_state = copy(state)
+        n_state = state.copy()
         self.remove_piece(n_state, pos)
         self.remove_piece(n_state, t_pos)
 
@@ -249,7 +250,7 @@ class Eximo:
         if  pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not self.is_empty(state, pos):
             return None
 
-        n_state = copy(state)
+        n_state = state.copy()
         self.place_piece(n_state, pos, n_state.player)
         n_state.action.pieces -= 1
         
@@ -298,29 +299,68 @@ class Eximo:
 
         return n_state
 
-    def move_north(self, state: State, pos: tuple) -> State:
-        return self.move(state, pos, (1, 0))
-    def move_north_east(self, state: State, pos: tuple) -> State:
-        return self.move(state, pos, (1, -1))
-    def move_north_west(self, state: State, pos: tuple) -> State:
-        return self.move(state, pos, (1, 1))
+    def get_children(self, state: State) -> list:
 
+        ret_states = []
 
-    def jump_north(self, state: State, pos: tuple) -> State:
-        return self.jump(state, pos, (1, 0))
-    def jump_north_east(self, state: State, pos: tuple) -> State:
-        return self.jump(state, pos, (1, -1))
-    def jump_north_west(self, state: State, pos: tuple) -> State:
-        return self.jump(state, pos, (1, 1))
+        if state.action.type == "start":
+            # TODO: check if any piece can capture
+            # TODO: if no piece can capture then try jumps and moves for each piece on the board
 
+            regular_arr = []
 
-    def capture_north(self, state: State, pos: tuple) -> State:
-        return self.capture(state, pos, (1, 0))
-    def capture_east(self, state: State, pos: tuple) -> State:
-        return self.capture(state, pos, (0, -1))
-    def capture_north_east(self, state: State, pos: tuple) -> State:
-        return self.capture(state, pos, (1, -1))
-    def capture_west(self, state: State, pos: tuple) -> State:
-        return self.capture(state, pos, (0, 1))
-    def capture_north_west(self, state: State, pos: tuple) -> State:
-        return self.capture(state, pos, (1, 1))
+            for row in range(0,8): 
+                for col in range(0,8):
+                    pos = (row, col)
+
+                    for vec in [Direction.WEST, Direction.EAST]:
+                        n_state = self.capture(state, pos, vec)
+                        if n_state != None: ret_states.append(n_state)
+
+                    for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
+                        n_state = self.capture(state, pos, vec)
+                        if n_state != None: ret_states.append(n_state)
+
+                        if ret_states: continue
+                        
+                        n_state = self.move(state, pos, vec) or self.jump(state, pos, vec)
+                        if n_state != None: 
+                            regular_arr.append(n_state)
+
+            if not ret_states:
+                # TODO: check if it is possible to assign
+                ret_states.extend(regular_arr)
+
+        elif state.action.type == "place":
+            # TODO: generate all possible placing possibilities
+            row_c = 0 if (state.player == 2) else 6
+
+            for row in range(0, 2):
+                for col in range(1, 7):
+                    n_state = self.place(state, (row_c + row, col))
+                    if n_state != None: ret_states.append(n_state)
+
+        elif state.action.type == "capture":
+            # TODO: check all the moves that the capturing piece can do
+            for vec in [Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST]:
+                n_state = self.capture(state, pos, vec)
+                if n_state != None: ret_states.append(n_state)
+            
+        elif state.action.type == "jump":
+            # TODO: check all the jumps that the jumping piece can do
+            for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
+                n_state = self.jump(state, pos, vec)
+                if n_state != None: ret_states.append(n_state)
+
+        # check if a r_state is a start action, if not get_children of that state until a start state          
+        tmp_states = []
+        print(len(ret_states))
+        for state in ret_states:
+            if state.action.type == "start":
+                continue
+            
+            tmp_states.extend(self.get_children(state))
+            ret_states.remove(state)
+
+        ret_states.extend(tmp_states)
+        return ret_states
