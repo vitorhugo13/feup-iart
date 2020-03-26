@@ -29,7 +29,9 @@ class Eximo:
             if self.player[state.player] == 'P':
                 state = self.player_move(state)
             else:
-                state = self.minimax(state, 2, state.player)
+                print("------- MINIMAX START --------")
+                state = self.minimax(state, 3, state.player)
+                print("------- MINIMAX END --------")
 
     def game_over(self, state: State) -> bool:
         if state.score[1] <= 0:
@@ -71,19 +73,15 @@ class Eximo:
                 return Direction.NORTH
             elif dir == 'NE':
                 return Direction.NORTHEAST
-    
-    def is_dropzone_full(self, state: State) -> bool:
-        row = 1 if (state.player == 2) else 7
-        return not (0 in state.board[row][1:6] or 0 in state.board[row - 1][1:6])
 
     def in_last_row(self, state, pos: tuple) -> bool:
         return (state.player == 1 and pos[0] == 0) or (state.player == 2 and pos[0] == 7)
 
     def check_capture(self, state: State) -> bool:
-        dir = self.get_direction(state)
+        dir = state.move_direction()
         for row in range(len(state.board)):
             for col in range(len(state.board[row])):
-                if not self.is_ally(state, (row, col)):
+                if not state.is_ally((row, col)):
                     continue
 
                 if (self.can_capture(state, dir, (row, col), Direction.WEST) or 
@@ -94,44 +92,15 @@ class Eximo:
                     return True
         return False
     
-
-    def place_piece(self, state: State, pos: tuple, piece: int) -> None:
-        state.board[pos[0]][pos[1]] = piece
-        state.score[piece] += 1
-    
-    def remove_piece(self, state: State, pos: tuple) -> None:
-        player = state.get_piece(pos)
-        state.board[pos[0]][pos[1]] = 0
-        state.score[player] -= 1
-    
-    # True if the piece on the position belongs to the player that is making the move
-    def is_ally(self, state: State, pos: tuple) -> bool:
-        return state.get_piece(pos) == state.player
-    
-    def is_enemy(self, state: State, pos: tuple) -> bool:
-        return not state.is_empty(pos) and not self.is_ally(state, pos)
-
-    # returns the movement direction multiplier 
-    def get_direction(self, state: State) -> int:
-        return 1 if state.player == 2 else -1
-    
     def valid_position(self, pos: tuple) -> bool:
         return pos[0] in range(0, 8) and pos[1] in range(0, 8)
 
     # ORDINARY MOVE OPERATORS
-    def can_move(self, state: State, pos: tuple, vec: tuple) -> bool:
-        dir = self.get_direction(state)
-        n_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(n_pos) or not state.is_empty(n_pos):
-            return False
-        
-        return True
-
     def move(self, state: State, pos: tuple, vec: tuple) -> State:
-        if not self.is_ally(state, pos):
+        if not state.is_ally(pos):
             return None
         
-        dir = self.get_direction(state)
+        dir = state.move_direction()
         n_pos = add(pos, mult(vec, dir))
 
         if not self.valid_position(n_pos):
@@ -140,12 +109,12 @@ class Eximo:
             return None
         
         n_state = state.copy()
-        self.remove_piece(n_state, pos)
+        n_state.remove_piece(pos)
 
         if self.in_last_row(state, n_pos):
             self.enter_place_mode(n_state)
         else:
-            self.place_piece(n_state, n_pos, state.player)
+            n_state.place_piece(n_pos, state.player)
             n_state.next_turn()
 
         return n_state
@@ -154,7 +123,7 @@ class Eximo:
     # JUMP MOVE OPERATORS
     def can_jump(self, state: State, dir: int, pos: tuple, vec: tuple) -> bool:
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_ally(state, t_pos):
+        if not self.valid_position(t_pos) or not state.is_ally(t_pos):
             return False
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -164,13 +133,13 @@ class Eximo:
         return True
 
     def jump(self, state: State, pos: tuple, vec: tuple) -> State:
-        if not self.is_ally(state, pos):
+        if not state.is_ally(pos):
             return None
 
-        dir = self.get_direction(state)
+        dir = state.move_direction()
 
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_ally(state, t_pos):
+        if not self.valid_position(t_pos) or not state.is_ally(t_pos):
             return None
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -178,12 +147,12 @@ class Eximo:
             return None
 
         n_state = state.copy()
-        self.remove_piece(n_state, pos)
+        n_state.remove_piece(pos)
 
         if self.in_last_row(state, n_pos):
             self.enter_place_mode(n_state)
         else:
-            self.place_piece(n_state, n_pos, state.player)
+            n_state.place_piece(n_pos, state.player)
             if  not (self.can_jump(n_state, dir, n_pos, Direction.NORTHWEST) or 
                 self.can_jump(n_state, dir, n_pos, Direction.NORTH) or 
                 self.can_jump(n_state, dir, n_pos, Direction.NORTHEAST)):
@@ -196,7 +165,7 @@ class Eximo:
     # CAPTURE OPERATORS
     def can_capture(self, state: State, dir: int, pos: tuple, vec: tuple) -> bool:
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
+        if not self.valid_position(t_pos) or not state.is_enemy(t_pos):
             return False
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -206,13 +175,13 @@ class Eximo:
         return True
 
     def capture(self, state: State, pos: tuple, vec: tuple) -> State:
-        if not self.is_ally(state, pos):
+        if not state.is_ally(pos):
             return None
         
-        dir = self.get_direction(state)
+        dir = state.move_direction()
 
         t_pos = add(pos, mult(vec, dir))
-        if not self.valid_position(t_pos) or not self.is_enemy(state, t_pos):
+        if not self.valid_position(t_pos) or not state.is_enemy(t_pos):
             return None
         
         n_pos = add(pos, mult(vec, dir * 2))
@@ -220,13 +189,13 @@ class Eximo:
             return None
 
         n_state = state.copy()
-        self.remove_piece(n_state, pos)
-        self.remove_piece(n_state, t_pos)
+        n_state.remove_piece(pos)
+        n_state.remove_piece(t_pos)
 
         if self.in_last_row(state, n_pos):
             self.enter_place_mode(n_state)
         else:
-            self.place_piece(n_state, n_pos, state.player)
+            n_state.place_piece(n_pos, state.player)
             if not (self.can_capture(n_state, dir, n_pos, Direction.WEST) or 
                 self.can_capture(n_state, dir, n_pos, Direction.NORTHWEST) or 
                 self.can_capture(n_state, dir, n_pos, Direction.NORTH) or 
@@ -244,7 +213,7 @@ class Eximo:
             return None
 
         n_state = state.copy()
-        self.place_piece(n_state, pos, n_state.player)
+        n_state.place_piece(pos, n_state.player)
         n_state.action.pieces -= 1
         
         if n_state.action.pieces == 0:
@@ -359,8 +328,7 @@ class Eximo:
 
     # TODO: deal with the case when the player has no more moves
     def minimax(self, state: State, depth: int, max_player: int) -> State:
-
-        if depth == 0:
+        if depth == 0: # or no more possible moves
             return state
 
         if state.player == max_player:
@@ -377,7 +345,7 @@ class Eximo:
             min_score = 65
             min_state = state
             for child in self.get_children(state):
-                n_state = self.minimax(child, depth, max_player)
+                n_state = self.minimax(child, depth - 1, max_player)
                 if n_state.score[max_player] < min_score:
                     min_score = n_state.score[max_player]
                     min_state = n_state

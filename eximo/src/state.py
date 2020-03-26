@@ -49,6 +49,24 @@ class State:
     def is_empty(self, pos: tuple) -> bool:
         return self.get_piece(pos) == 0
 
+    def place_piece(self, pos:tuple, piece: int) -> None:
+        self.board[pos[0]][pos[1]] = piece
+        self.score[piece] += 1
+
+    def remove_piece(self, pos: tuple) -> None:
+        player = self.get_piece(pos)
+        self.board[pos[0]][pos[1]] = 0
+        self.score[player] -= 1
+
+    def is_ally(self, pos: tuple) -> bool:
+        return self.get_piece(pos) == self.player
+
+    def is_enemy(self, pos: tuple) -> bool:
+        return self.get_piece(pos) == self.player % 2 + 1
+        # return not state.is_empty(pos) and not self.is_ally(state, pos)
+
+    def move_direction(self) -> int:
+        return 1 if self.player == 2 else -1
 
 
 class Start:
