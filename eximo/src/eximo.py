@@ -30,7 +30,7 @@ class Eximo:
                 state = self.player_move(state)
             else:
                 print("------- MINIMAX START --------")
-                state = self.minimax(state, 3, state.player)
+                state = self.minimax(state, 3, state.player, True)
                 print("------- MINIMAX END --------")
 
     def game_over(self, state: State) -> bool:
@@ -327,26 +327,43 @@ class Eximo:
         return ret_states
 
     # TODO: deal with the case when the player has no more moves
-    def minimax(self, state: State, depth: int, max_player: int) -> State:
+    def minimax(self, state: State, depth: int, max_player: int, root: bool) -> State:
+        
         if depth == 0: # or no more possible moves
+            return state
+        children = self.get_children(state)
+        if len(children) == 0:
             return state
 
         if state.player == max_player:
             max_score = -1
+            max_index = -1
             max_state = state
-            for child in self.get_children(state):
-                n_state = self.minimax(child, depth - 1, max_player)
+            
+
+            for i, child in enumerate(children):
+                n_state = self.minimax(child, depth - 1, max_player, False)
                 if n_state.score[max_player] > max_score:
                     max_score = n_state.score[max_player]
                     max_state = n_state
-            return max_state
+                    max_index = i
+            if not root:
+                return max_state
+            else:
+                return children[max_index]
         
         else:
             min_score = 65
             min_state = state
-            for child in self.get_children(state):
-                n_state = self.minimax(child, depth - 1, max_player)
+            min_index = -1
+
+            for i, child in enumerate(children):
+                n_state = self.minimax(child, depth - 1, max_player, False)
                 if n_state.score[max_player] < min_score:
                     min_score = n_state.score[max_player]
                     min_state = n_state
-            return min_state
+                    min_index = i
+            if not root:
+                return min_state
+            else:
+                return children[min_index]

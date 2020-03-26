@@ -2,12 +2,12 @@ from colorama import Fore, Back, Style
 from copy import copy
 
 class State:
-    score = {}
 
     def __init__(self, board, player, s1, s2, action):
         self.board = board
         self.player = player
-        self.action = action 
+        self.action = action
+        self.score = {}
         self.score[1] = s1
         self.score[2] = s2
 
