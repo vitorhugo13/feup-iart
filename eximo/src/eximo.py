@@ -92,8 +92,9 @@ class Eximo:
     @staticmethod
     def minimax(state: State, depth: int, max_player: int, root: bool) -> State:
         
-        if depth == 0: # or no more possible moves
+        if depth == 0:
             return state
+
         children = state.get_children()
         if len(children) == 0:
             return state
@@ -103,7 +104,6 @@ class Eximo:
             max_index = -1
             max_state = state
             
-
             for i, child in enumerate(children):
                 n_state = Eximo.minimax(child, depth - 1, max_player, False)
                 if n_state.score[max_player] > max_score:

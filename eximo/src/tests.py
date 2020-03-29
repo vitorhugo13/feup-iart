@@ -119,7 +119,7 @@ test_state_10 = State([
     [0, 0, 0, 0, 0, 0, 0, 0], 
     [0, 1, 1, 0, 0, 1, 1, 0], 
     [0, 1, 0, 1, 1, 1, 1, 0], 
-    [0, 1, 0, 0, 0, 1, 1, 0]], 1, 1, 1, Place(2))
+    [0, 1, 0, 0, 0, 1, 1, 0]], 2, 1, 1, Place(2))
 
 
 def test_move():
@@ -202,7 +202,7 @@ def test_place_piece():
 
 
 def test_get_children():
-    states = game.get_children(test_state_10)
+    states = test_state_10.get_children()
     
     # for state in states:
         # state.print()
