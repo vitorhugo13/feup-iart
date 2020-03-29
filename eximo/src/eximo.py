@@ -27,8 +27,16 @@ class Eximo:
     @staticmethod
     def sel_cell() -> tuple:
         while True:
-            row = int(input('Row (1-8): ')) - 1
-            col = ord(input('Col (A-H): ').lower()) - 97
+            
+            row_number = input('Row (1-8): ')
+            while len(row_number) > 1 or len(row_number) == 0:
+                row_number = input('Row (1-8): ') 
+            row = ord(row_number) - 49
+
+            col_number = input('Col (A-H): ').lower()
+            while len(col_number) > 1 or len(col_number) == 0:
+                col_number = input('Col (A-H): ').lower()
+            col = ord(col_number) - 97
 
             if State.valid_position((row, col)):
                 return (row, col)
