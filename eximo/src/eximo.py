@@ -9,15 +9,32 @@ import time
 
 
 class Eximo:
+    prv_player = 2
+
     def __init__(self, p1: str, p2: str):
         self.player = {}
         self.player[1] = p1
         self.player[2] = p2
 
+    def game_over(self, state: State) -> bool:
+        if state.score[1] <= 0:
+            print("Player 2 won!")
+            return True
+        elif state.score[2] <= 0:
+            print("Player 1 won!")
+            return True
+        elif self.prv_player == state.player:
+            print('Player ' + str(state.player) + ' has ran out of moves...')
+            print('Player ' + str(state.player % 2 + 1) + ' won!')
+            return True
+        return False
+
     def play(self):
         state = start_state
-        while not state.game_over():
+        while not self.game_over(state):
             state.print()
+
+            self.prv_player = state.player
 
             if self.player[state.player] == 'P':
                 state = self.player_move(state)
@@ -29,6 +46,7 @@ class Eximo:
                 end = time.time()
                 print("------- MINIMAX END --------")
                 print("elapsed time : " + str(end - start) + "seconds")
+            
 
     @staticmethod
     def sel_cell() -> tuple:
@@ -177,7 +195,7 @@ def minimax_score(state, depth, max_player, parent_best):
     if depth <= 0:
         return state.score[max_player]
     
-    better = lambda a, b: a > b if state.player == max_player else a < b
+    better = lambda a, b: a > b if state.player == max_player else a <= b
     best_score = -1 if state.player == max_player else sys.maxsize
 
     for child in state.get_children():
@@ -186,5 +204,5 @@ def minimax_score(state, depth, max_player, parent_best):
             return score
         if better(score, best_score):
             best_score = score
-
+    
     return best_score

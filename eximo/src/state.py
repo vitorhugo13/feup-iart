@@ -19,15 +19,6 @@ class State:
         self.score[1] = s1
         self.score[2] = s2
 
-    def game_over(self) -> bool:
-        if self.score[1] <= 0:
-            print("player 2 won")
-            return True
-        elif self.score[2] <= 0:
-            print("player 1 won")
-            return True
-        return False
-
     @staticmethod
     def valid_position(pos: tuple) -> bool:
         return pos[0] in range(0, 8) and pos[1] in range(0, 8)
@@ -109,6 +100,17 @@ class State:
             ret_states.extend(state.get_children())
         
         return result
+
+        # tmp_states = []
+        # for state in ret_states:
+        #     if state.action[0] == 1:
+        #         continue
+
+        #     tmp_states.extend(state.get_children())
+        #     ret_states.remove(state)
+
+        # ret_states.extend(tmp_states)
+        # return ret_states
 
     # ORDINARY MOVE OPERATORS
     def move(self, pos: tuple, vec: tuple):
