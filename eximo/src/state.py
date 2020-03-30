@@ -251,9 +251,9 @@ class State:
         if self.action[0] == 1:
             message = "make a move"
         elif self.action[0] == 2:
-            message = "keep jumping with piece (" + action[1][0] + ", " + action[1][1] + ")"
+            message = "keep jumping with piece (" + str(self.action[1][0]) + ", " + str(self.action[1][1]) + ")"
         elif self.action[0] == 3:
-            message = "keep capturing with piece (" + action[1][0] + ", " + action[1][1] + ")"
+            message = "keep capturing with piece (" + str(self.action[1][0]) + ", " + str(self.action[1][1]) + ")"
         elif self.action[0] == 4:
             message = "place a piece in the dropzone"
 
@@ -305,7 +305,7 @@ class State:
 
     def enter_place_mode(self) -> None:
         row = 1 if (self.player == 2) else 7
-        available = self.board[row][1:6].count(0) + self.board[row - 1][1:6].count(0)
+        available = self.board[row][1:7].count(0) + self.board[row - 1][1:7].count(0)
         
         if available > 1:
             self.action = [4, 2]
@@ -315,13 +315,13 @@ class State:
             self.next_turn()
 
 start_state = State([
-        [0, 2, 2, 2, 2, 2, 2, 0],
+        [0, 2, 2, 0, 2, 2, 2, 0],
         [0, 2, 2, 2, 2, 2, 2, 0], 
-        [0, 2, 2, 0, 0, 2, 2, 0], 
+        [1, 2, 0, 0, 0, 2, 2, 1], 
+        [0, 0, 0, 2, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 0, 0, 0, 0, 0, 0, 0], 
-        [0, 1, 1, 0, 0, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0], 
+        [2, 0, 1, 0, 1, 1, 1, 0], 
+        [0, 0, 1, 1, 0, 1, 1, 0], 
         [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, [1])
 
 

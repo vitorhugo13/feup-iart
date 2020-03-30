@@ -22,12 +22,14 @@ class Eximo:
             if self.player[state.player] == 'P':
                 state = self.player_move(state)
             else:
+                depth = int(self.player[state.player][1:])
                 print("------- MINIMAX START --------")
                 start = time.time()
-                state = self.minimax(state, 4, state.player, True)
+                state = self.minimax(state, depth, state.player, True)
                 end = time.time()
                 print("------- MINIMAX END --------")
                 print("elapsed time : " + str(end - start) + "seconds")
+            
 
     @staticmethod
     def sel_cell() -> tuple:
@@ -107,7 +109,7 @@ class Eximo:
                 pos = Eximo.sel_cell()
 
                 row = 2 if state.player == 2 else 8
-                if pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not self.is_empty(pos):
+                if pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not state.is_empty(pos):
                     continue
 
                 n_state = state.place(pos)
@@ -155,3 +157,6 @@ class Eximo:
                 return min_state
             else:
                 return children[min_index]
+
+
+        
