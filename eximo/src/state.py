@@ -67,6 +67,7 @@ class State:
                 ret_states.extend(regular_arr)
 
         elif self.action.type == "place":
+            print("place action (get_children)")
             # TODO: generate all possible placing possibilities
             row_c = 0 if (self.player == 2) else 6
 
@@ -209,6 +210,25 @@ class State:
                 n_state.action = Capture(n_pos)
         
         return n_state
+    
+    def place(self, pos: tuple):
+        print("number of places left : " + str(self.action.pieces))
+
+        row = 2 if self.player == 2 else 8
+        if pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not self.is_empty(pos):
+            return None
+
+        n_state = self.copy()
+        n_state.place_piece(pos, n_state.player)
+        n_state.action.pieces -= 1
+        
+        print("n_state places left : " + str(n_state.action.pieces))
+        if n_state.action.pieces == 0:
+            print("next_turn")
+            n_state.next_turn()
+            print("state action : " + n_state.action.type)
+        
+        return n_state
 
     def print(self):
         print()
@@ -276,23 +296,10 @@ class State:
                     return True
         return False
 
-    def place(self, pos: tuple):
-        row = 2 if self.player == 2 else 8
-        if  pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not self.is_empty(pos):
-            return None
-
-        n_state = self.copy()
-        n_state.place_piece(pos, n_state.player)
-        n_state.action.pieces -= 1
-        
-        if n_state.action.pieces == 0:
-            n_state.next_turn()
-        
-        return n_state
-
     def enter_place_mode(self) -> None:
         row = 1 if (self.player == 2) else 7
         available = self.board[row][1:6].count(0) + self.board[row - 1][1:6].count(0)
+        print("number of empty cells : " + str(available))
         
         if available > 1:
             self.action = Place(2)
