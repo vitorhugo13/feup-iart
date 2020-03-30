@@ -138,8 +138,8 @@ test_state_12 = State([
         [0, 0, 0, 2, 0, 0, 0, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [2, 0, 1, 0, 1, 1, 1, 0], 
-        [0, 0, 1, 1, 0, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 17, 13, [4, 2])
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0]], 1, 17, 13, [4, 2])
 
 def test_move():
     print("North")
@@ -221,10 +221,15 @@ def test_place_piece():
 
 
 def test_get_children():
-    states = test_state_11.get_children()
+    test_state_12.print()
+    print('--------------------------------')
+    print('--------------------------------')
+    print('--------------------------------')
 
-    # for state in states:
-    #     state.print()
+    states = test_state_12.get_children()
+
+    for state in states:
+        state.print()
 
     print(len(states))
 

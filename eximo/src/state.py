@@ -88,7 +88,19 @@ class State:
                     if not self.is_empty((row_c + row, col)):
                         continue
                     n_state = self.place((row_c + row, col))
-                    ret_states.append(n_state)
+
+                    if n_state.action[0] == 1:
+                        ret_states.append(n_state)
+                        continue
+                    
+                    tmp_col = col + 1
+                    for i in range(row, 2):
+                        for j in range(tmp_col, 7):
+                            if not self.is_empty((row_c + i, j)):
+                                continue
+                            f_state = n_state.place((row_c + i, j))
+                            ret_states.append(f_state)
+                        tmp_col = 1
         
         # check if a r_state is a start action, if not get_children of that state until a start state          
         result = []

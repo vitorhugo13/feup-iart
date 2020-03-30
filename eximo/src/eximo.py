@@ -3,6 +3,7 @@ from copy import copy
 
 from state import State, start_state
 from aux import Direction
+from eval import *
 import sys
 
 import time
@@ -196,7 +197,10 @@ def minimax(state, depth, max_player):
 
 def minimax_score(state, depth, max_player, parent_best):
     if depth <= 0:
-        return state.score[max_player]
+        # return state.score[max_player]
+        # return center(state)
+        return available_moves(state)
+        
     
     better = lambda a, b: a > b if state.player == max_player else a <= b
     best_score = -1 if state.player == max_player else sys.maxsize
