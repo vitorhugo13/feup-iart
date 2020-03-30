@@ -5,6 +5,8 @@ from state import State, start_state
 from aux import Direction
 import sys
 
+import time
+
 
 class Eximo:
     def __init__(self, p1: str, p2: str):
@@ -21,8 +23,11 @@ class Eximo:
                 state = self.player_move(state)
             else:
                 print("------- MINIMAX START --------")
-                state = self.minimax(state, 3, state.player, True)
+                start = time.time()
+                state = self.minimax(state, 4, state.player, True)
+                end = time.time()
                 print("------- MINIMAX END --------")
+                print("elapsed time : " + str(end - start) + "seconds")
 
     @staticmethod
     def sel_cell() -> tuple:
@@ -71,9 +76,13 @@ class Eximo:
     def player_move(state) -> State:
         n_state = None
         while n_state == None:
-
-            if state.action.type == "start":
+            
+            # start mode
+            if state.action[0] == 1:
                 pos = Eximo.sel_cell()
+                if not state.is_ally(pos):
+                    continue
+
                 if state.check_capture():
                     vec = Eximo.sel_cp_dir()
                     n_state = state.capture(pos, vec)
@@ -81,18 +90,26 @@ class Eximo:
                     vec = Eximo.sel_mv_dir()
                     n_state = state.move(pos, vec) or state.jump(pos, vec)
 
-            elif state.action.type == "jump":
-                pos = state.action.pos
+            # jump mode
+            elif state.action[0] == 2:
+                pos = state.action[1]
                 vec = Eximo.sel_mv_dir()
                 n_state = state.jump(pos, vec)
 
-            elif state.action.type == "capture":
-                pos = state.action.pos
+            # capture mode
+            elif state.action[0] == 3:
+                pos = state.action[1]
                 vec = Eximo.sel_cp_dir()
                 n_state = state.capture(pos, vec)
 
-            elif state.action.type == "place":
+            # place mode
+            elif state.action[0] == 4:
                 pos = Eximo.sel_cell()
+
+                row = 2 if state.player == 2 else 8
+                if pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not self.is_empty(pos):
+                    continue
+
                 n_state = state.place(pos)
 
         return n_state

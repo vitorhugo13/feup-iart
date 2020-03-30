@@ -4,6 +4,13 @@ from aux import add, mult, Direction
 
 class State:
 
+    # action = (INNNER_STATE, (POS | NUM_PIECES)?)
+    # 1 - start of a play           ex: [1]
+    # 2 - middle of a jump move     ex: [2, (3, 4)]
+    # 3 - middle of a capture move  ex: [3, (4, 1)]
+    # 4 - middle of a place move    ex: [4, 3]
+
+
     def __init__(self, board, player, s1, s2, action):
         self.board = board
         self.player = player
@@ -31,14 +38,14 @@ class State:
     def copy(self):
         board = [row.copy() for row in self.board]
         player = self.player + 0
-        action = self.action
+        action = copy(self.action)
         return State(board, player, self.score[1], self.score[2], action)
 
     def get_children(self) -> list:
 
         ret_states = []
 
-        if self.action.type == "start":
+        if self.action[0] == 1:
             # TODO: check if any piece can capture
             # TODO: if no piece can capture then try jumps and moves for each piece on the board
 
@@ -47,6 +54,9 @@ class State:
             for row in range(0,8): 
                 for col in range(0,8):
                     pos = (row, col)
+
+                    if not self.is_ally(pos):
+                        continue;
 
                     for vec in [Direction.WEST, Direction.EAST]:
                         n_state = self.capture(pos, vec)
@@ -65,33 +75,34 @@ class State:
             if not ret_states:
                 # TODO: check if it is possible to assign
                 ret_states.extend(regular_arr)
+        
+        # jump mode
+        elif self.action[0] == 2:
+            for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
+                n_state = self.jump(self.action[1], vec)
+                if n_state != None: ret_states.append(n_state)
 
-        elif self.action.type == "place":
-            print("place action (get_children)")
-            # TODO: generate all possible placing possibilities
+        # capture mode
+        elif self.action[0] == 3:
+            for vec in [Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST]:
+                n_state = self.capture(self.action[1], vec)
+                if n_state != None: ret_states.append(n_state)
+
+        # place mode
+        elif self.action[0] == 4:
             row_c = 0 if (self.player == 2) else 6
 
             for row in range(0, 2):
                 for col in range(1, 7):
+                    if not self.is_empty((row, col)):
+                        continue
                     n_state = self.place((row_c + row, col))
                     if n_state != None: ret_states.append(n_state)
-
-        elif self.action.type == "capture":
-            # TODO: check all the moves that the capturing piece can do
-            for vec in [Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST]:
-                n_state = self.capture(self.action.pos, vec)
-                if n_state != None: ret_states.append(n_state)
-            
-        elif self.action.type == "jump":
-            # TODO: check all the jumps that the jumping piece can do
-            for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
-                n_state = self.jump(self.action.pos, vec)
-                if n_state != None: ret_states.append(n_state)
-
+        
         # check if a r_state is a start action, if not get_children of that state until a start state          
         tmp_states = []
         for state in ret_states:
-            if state.action.type == "start":
+            if state.action[0] == 1:
                 continue
             
             tmp_states.extend(state.get_children())
@@ -102,8 +113,8 @@ class State:
 
     # ORDINARY MOVE OPERATORS
     def move(self, pos: tuple, vec: tuple):
-        if not self.is_ally(pos):
-            return None
+        # if not self.is_ally(pos):
+        #     return None
         
         dir = self.move_direction()
         n_pos = add(pos, mult(vec, dir))
@@ -137,8 +148,8 @@ class State:
         return True
 
     def jump(self, pos: tuple, vec: tuple):
-        if not self.is_ally(pos):
-            return None
+        # if not self.is_ally(pos):
+        #     return None
 
         dir = self.move_direction()
 
@@ -162,7 +173,7 @@ class State:
                 n_state.can_jump(dir, n_pos, Direction.NORTHEAST)):
                 n_state.next_turn()
             else:
-                n_state.action = Jump(n_pos)
+                n_state.action = [2, n_pos]
 
         return n_state
 
@@ -179,9 +190,6 @@ class State:
         return True
 
     def capture(self, pos: tuple, vec: tuple):
-        if not self.is_ally(pos):
-            return None
-        
         dir = self.move_direction()
 
         t_pos = add(pos, mult(vec, dir))
@@ -207,26 +215,17 @@ class State:
                 n_state.can_capture(dir, n_pos, Direction.EAST)):
                 n_state.next_turn()
             else:
-                n_state.action = Capture(n_pos)
+                n_state.action = [3, n_pos]
         
         return n_state
     
     def place(self, pos: tuple):
-        print("number of places left : " + str(self.action.pieces))
-
-        row = 2 if self.player == 2 else 8
-        if pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not self.is_empty(pos):
-            return None
-
         n_state = self.copy()
         n_state.place_piece(pos, n_state.player)
-        n_state.action.pieces -= 1
+        n_state.action[1] -= 1
         
-        print("n_state places left : " + str(n_state.action.pieces))
-        if n_state.action.pieces == 0:
-            print("next_turn")
+        if n_state.action[1] == 0:
             n_state.next_turn()
-            print("state action : " + n_state.action.type)
         
         return n_state
 
@@ -249,12 +248,21 @@ class State:
             print('\n' + '   | --   --   --   --   --   --   --   --')
         print('Player 1: ' + str(self.score[1]) + ' | Player 2: ' + str(self.score[2]))
         
-        print(Fore.GREEN + 'Player ' + str(self.player) + ' ' + self.action.type + '!')
+        if self.action[0] == 1:
+            message = "make a move"
+        elif self.action[0] == 2:
+            message = "keep jumping with piece (" + action[1][0] + ", " + action[1][1] + ")"
+        elif self.action[0] == 3:
+            message = "keep capturing with piece (" + action[1][0] + ", " + action[1][1] + ")"
+        elif self.action[0] == 4:
+            message = "place a piece in the dropzone"
+
+        print(Fore.GREEN + 'Player ' + str(self.player) + ' ' + message + '!')
         print(Style.RESET_ALL, end="")
 
     def next_turn(self):
         self.player = self.player % 2 + 1
-        self.action = Start()
+        self.action = [1]
 
     def get_piece(self, pos: tuple) -> int:
         return self.board[pos[0]][pos[1]]
@@ -276,7 +284,6 @@ class State:
 
     def is_enemy(self, pos: tuple) -> bool:
         return self.get_piece(pos) == self.player % 2 + 1
-        # return not state.is_empty(pos) and not self.is_ally(state, pos)
 
     def move_direction(self) -> int:
         return 1 if self.player == 2 else -1
@@ -299,37 +306,13 @@ class State:
     def enter_place_mode(self) -> None:
         row = 1 if (self.player == 2) else 7
         available = self.board[row][1:6].count(0) + self.board[row - 1][1:6].count(0)
-        print("number of empty cells : " + str(available))
         
         if available > 1:
-            self.action = Place(2)
+            self.action = [4, 2]
         elif available > 0:
-            self.action = Place(1)
+            self.action = [4, 1]
         else:
             self.next_turn()
-
-class Start:
-    type = "start"
-    def __init__(self):
-        self.type = "start"
-
-class Jump:
-    type = "jump"
-    pos = (0,0)
-    def __init__(self, pos: tuple):
-        self.pos = pos
-        
-class Capture:
-    type = "capture"
-    pos = (0,0)
-    def __init__(self, pos: tuple):
-        self.pos = pos
-
-class Place:
-    type = "place"
-    pieces = 0
-    def __init__(self, pieces):
-        self.pieces = pieces
 
 start_state = State([
         [0, 2, 2, 2, 2, 2, 2, 0],
@@ -339,4 +322,6 @@ start_state = State([
         [0, 0, 0, 0, 0, 0, 0, 0], 
         [0, 1, 1, 0, 0, 1, 1, 0], 
         [0, 1, 1, 1, 1, 1, 1, 0], 
-        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, Start())
+        [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, [1])
+
+
