@@ -18,12 +18,15 @@ class Eximo:
 
     def game_over(self, state: State) -> bool:
         if state.score[1] <= 0:
+            state.print()
             print("Player 2 won!")
             return True
         elif state.score[2] <= 0:
+            state.print()
             print("Player 1 won!")
             return True
         elif self.prv_player == state.player:
+            state.print()
             print('Player ' + str(state.player) + ' has ran out of moves...')
             print('Player ' + str(state.player % 2 + 1) + ' won!')
             return True
@@ -46,7 +49,7 @@ class Eximo:
                 end = time.time()
                 print("------- MINIMAX END --------")
                 print("elapsed time : " + str(end - start) + "seconds")
-            
+
 
     @staticmethod
     def sel_cell() -> tuple:
@@ -204,5 +207,5 @@ def minimax_score(state, depth, max_player, parent_best):
             return score
         if better(score, best_score):
             best_score = score
-    
+
     return best_score
