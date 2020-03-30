@@ -14,7 +14,7 @@ def signal_handler(sig, frame):
 signal.signal(signal.SIGINT, signal_handler)
 
 def valid_game_mode(opt: int) -> bool:
-        return opt in range(0, 5)
+        return opt in range(1, 6)
 
 def print_horizontal():
     print('----------------------------------------------', end="")
@@ -45,10 +45,10 @@ def game_mode():
         while len(mode) > 1 or len(mode) == 0:
             mode = input(TRED +'Game Mode: '+ ENDC)
 
-        game_mode = ord(mode) - 49
+        game_mode = ord(mode) - 48
 
         if valid_game_mode(game_mode):
-            return True
+            return game_mode
 
 def show_main_menu():
     print_horizontal()
@@ -56,7 +56,8 @@ def show_main_menu():
     print_vertical()
     print_horizontal()
     print('\n')
-    game_mode()
+    game = game_mode()
+    print(game)
 
 show_main_menu()
 #game = Eximo('P', 'C')
