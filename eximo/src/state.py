@@ -42,7 +42,7 @@ class State:
         return State(board, player, self.score[1], self.score[2], action)
 
     def get_children(self) -> list:
-
+        
         ret_states = []
 
         if self.action[0] == 1:
@@ -56,7 +56,7 @@ class State:
                     pos = (row, col)
 
                     if not self.is_ally(pos):
-                        continue;
+                        continue
 
                     for vec in [Direction.WEST, Direction.EAST]:
                         n_state = self.capture(pos, vec)
@@ -94,27 +94,24 @@ class State:
 
             for row in range(0, 2):
                 for col in range(1, 7):
-                    if not self.is_empty((row, col)):
+                    if not self.is_empty((row_c + row, col)):
                         continue
                     n_state = self.place((row_c + row, col))
-                    if n_state != None: ret_states.append(n_state)
+                    ret_states.append(n_state)
         
         # check if a r_state is a start action, if not get_children of that state until a start state          
-        tmp_states = []
+        result = []
         for state in ret_states:
             if state.action[0] == 1:
+                result.append(state)
                 continue
             
-            tmp_states.extend(state.get_children())
-            ret_states.remove(state)
-            
-        ret_states.extend(tmp_states)
-        return ret_states
+            ret_states.extend(state.get_children())
+        
+        return result
 
     # ORDINARY MOVE OPERATORS
     def move(self, pos: tuple, vec: tuple):
-        # if not self.is_ally(pos):
-        #     return None
         
         dir = self.move_direction()
         n_pos = add(pos, mult(vec, dir))
@@ -148,8 +145,6 @@ class State:
         return True
 
     def jump(self, pos: tuple, vec: tuple):
-        # if not self.is_ally(pos):
-        #     return None
 
         dir = self.move_direction()
 
@@ -315,13 +310,12 @@ class State:
             self.next_turn()
 
 start_state = State([
-        [0, 2, 2, 0, 2, 2, 2, 0],
+        [0, 2, 2, 2, 2, 2, 2, 0],
         [0, 2, 2, 2, 2, 2, 2, 0], 
-        [1, 2, 0, 0, 0, 2, 2, 1], 
-        [0, 0, 0, 2, 0, 0, 0, 0], 
+        [0, 2, 2, 0, 0, 2, 2, 0], 
         [0, 0, 0, 0, 0, 0, 0, 0], 
-        [2, 0, 1, 0, 1, 1, 1, 0], 
-        [0, 0, 1, 1, 0, 1, 1, 0], 
+        [0, 0, 0, 0, 0, 0, 0, 0], 
+        [0, 1, 1, 0, 0, 1, 1, 0], 
+        [0, 1, 1, 1, 1, 1, 1, 0], 
         [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, [1])
-
 

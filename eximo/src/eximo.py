@@ -29,7 +29,6 @@ class Eximo:
                 end = time.time()
                 print("------- MINIMAX END --------")
                 print("elapsed time : " + str(end - start) + "seconds")
-            
 
     @staticmethod
     def sel_cell() -> tuple:
@@ -158,5 +157,3 @@ class Eximo:
             else:
                 return children[min_index]
 
-
-        
