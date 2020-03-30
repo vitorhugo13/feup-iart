@@ -13,6 +13,8 @@ def signal_handler(sig, frame):
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
 
+def valid_game_mode(opt: int) -> bool:
+        return opt in range(0, 5)
 
 def print_horizontal():
     print('----------------------------------------------', end="")
@@ -32,9 +34,21 @@ def print_vertical():
         elif i == 10:
             print('|' + '             '+ TGREEN+'4)',ENDC+'Computer vs Computer        '+'|')
         elif i == 12:
-            print('|' + '             '+ TGREEN+'0)',ENDC+'Exit                        '+'|')
+            print('|' + '             '+ TGREEN+'5)',ENDC+'Exit                        '+'|')
         else:
             print('|                                            |')
+
+def game_mode():
+    while True:
+        mode = input(TRED +'Game Mode: '+ ENDC)
+
+        while len(mode) > 1 or len(mode) == 0:
+            mode = input(TRED +'Game Mode: '+ ENDC)
+
+        game_mode = ord(mode) - 49
+
+        if valid_game_mode(game_mode):
+            return True
 
 def show_main_menu():
     print_horizontal()
@@ -42,8 +56,8 @@ def show_main_menu():
     print_vertical()
     print_horizontal()
     print('\n')
-    print('\n')
-    
-# show_main_menu()
-game = Eximo('P', 'C')
-game.play()
+    game_mode()
+
+show_main_menu()
+#game = Eximo('P', 'C')
+#game.play()
