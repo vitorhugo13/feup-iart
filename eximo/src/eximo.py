@@ -25,7 +25,7 @@ class Eximo:
                 depth = int(self.player[state.player][1:])
                 print("------- MINIMAX START --------")
                 start = time.time()
-                state = self.minimax(state, depth, state.player, True)
+                state = minimax(state, depth, state.player)
                 end = time.time()
                 print("------- MINIMAX END --------")
                 print("elapsed time : " + str(end - start) + "seconds")
@@ -157,3 +157,34 @@ class Eximo:
             else:
                 return children[min_index]
 
+def minimax(state, depth, max_player):
+    if depth <= 0:
+        return state
+
+    better = lambda a, b: a > b if state.player == max_player else a < b
+    best_score = -1 if state.player == max_player else sys.maxsize
+    best_child = state
+
+    for child in state.get_children():
+        score = minimax_score(child, depth - 1, max_player, best_score)
+        if better(score, best_score):
+            best_score = score
+            best_child = child
+
+    return best_child
+
+def minimax_score(state, depth, max_player, parent_best):
+    if depth <= 0:
+        return state.score[max_player]
+    
+    better = lambda a, b: a > b if state.player == max_player else a < b
+    best_score = -1 if state.player == max_player else sys.maxsize
+
+    for child in state.get_children():
+        score = minimax_score(child, depth - 1, max_player, best_score)
+        if better(score, parent_best): # abort early because this branch will not be picked
+            return score
+        if better(score, best_score):
+            best_score = score
+
+    return best_score
