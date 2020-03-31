@@ -42,12 +42,11 @@ def print_heuristic_menu(player):
     print('|' + '                ' + TGREEN + '    EXIMO                  ', ENDC + '|')
     print('|' + '         ' + TRED + 'Choose computer ' + str(player) + '\'s heuristic:    ', ENDC + '|')
     print('|                                            |')
+    print('|                                            |')
     print('|' + '             ' + TGREEN + '1)', ENDC + 'Centralized                 ' + '|')
     print('|' + '             ' + TGREEN + '2)', ENDC + 'Decentralized               ' + '|')
     print('|' + '             ' + TGREEN + '3)', ENDC + 'Subtraction                 ' + '|')
     print('|' + '             ' + TGREEN + '4)', ENDC + 'Number of pieces            ' + '|')
-    print('|' + '             ' + TGREEN + '5)', ENDC + 'Number of moves             ' + '|')
-    print('|                                            |')
     print('|                                            |')
     print('|                                            |')
     print('|                                            |')
@@ -99,8 +98,6 @@ def sel_heuristic(player):
             return subtraction
         elif h == 4:
             return num_pieces
-        elif h == 5:
-            return available_moves
 
 def main_menu():
     player = {}
