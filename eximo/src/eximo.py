@@ -259,7 +259,7 @@ class Eximo:
 
         return best_child
 
-    #function that evaluates the node value
+    # function that evaluates the node value(biggest value)
     # @staticmethod
     def minimax_score(self, state, depth, max_player, parent_best, eval):
         if depth <= 0:

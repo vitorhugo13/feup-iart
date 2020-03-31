@@ -33,15 +33,14 @@ class State:
         action = copy(self.action)
         return State(board, player, self.score[1], self.score[2], action)
 
-    # return all the possible states that can be achieved 
+    # return the direct children states 
     def get_children(self) -> list:
         
         ret_states = []
 
+        # start mode - the player is free to do whatever move he can, 
+        # however, if he has the chance to capture he must do so
         if self.action[0] == 1:
-            # TODO: check if any piece can capture
-            # TODO: if no piece can capture then try jumps and moves for each piece on the board
-
             regular_arr = []
 
             for row in range(0,8): 
@@ -50,7 +49,7 @@ class State:
 
                     if not self.is_ally(pos):
                         continue
-
+                    
                     for vec in [Direction.WEST, Direction.EAST]:
                         n_state = self.capture(pos, vec)
                         if n_state != None: ret_states.append(n_state)
@@ -59,14 +58,15 @@ class State:
                         n_state = self.capture(pos, vec)
                         if n_state != None: ret_states.append(n_state)
 
+                        # if capturing is possible, there is no need to check for more moves other than captures
                         if ret_states: continue
                         
                         n_state = self.move(pos, vec) or self.jump(pos, vec)
                         if n_state != None: 
                             regular_arr.append(n_state)
 
+            # no captures are possible, so all other possible moves are added to the return list
             if not ret_states:
-                # TODO: check if it is possible to assign
                 ret_states.extend(regular_arr)
         
         # jump mode
@@ -85,16 +85,20 @@ class State:
         elif self.action[0] == 4:
             row_c = 0 if (self.player == 2) else 6
 
+            # try to place one piece on the dropzone
             for row in range(0, 2):
                 for col in range(1, 7):
                     if not self.is_empty((row_c + row, col)):
                         continue
                     n_state = self.place((row_c + row, col))
 
+                    # if only possible/needed to place one
                     if n_state.action[0] == 1:
                         ret_states.append(n_state)
                         continue
                     
+                    # place the second piece in always in front of the previous piece, 
+                    # this way no states are repeated and the number of children is reduced
                     tmp_col = col + 1
                     for i in range(row, 2):
                         for j in range(tmp_col, 7):
@@ -104,9 +108,9 @@ class State:
                             ret_states.append(f_state)
                         tmp_col = 1
         
-        # check if a r_state is a start action, if not get_children of that state until a start state          
         result = []
         for state in ret_states:
+            # check if a state is a start action, if not get_children of that state until a start state          
             if state.action[0] == 1:
                 result.append(state)
                 continue
@@ -285,6 +289,7 @@ class State:
     def is_enemy(self, pos: tuple) -> bool:
         return self.get_piece(pos) == self.player % 2 + 1
 
+    # return the move direction multiplier for the current player
     def move_direction(self) -> int:
         return 1 if self.player == 2 else -1
 
@@ -323,23 +328,3 @@ start_state = State([
         [0, 1, 1, 0, 0, 1, 1, 0], 
         [0, 1, 1, 1, 1, 1, 1, 0], 
         [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, [1])
-
-# start_state = State([
-#         [0, 0, 0, 0, 0, 0, 0, 0],
-#         [0, 0, 0, 0, 0, 0, 0, 2], 
-#         [0, 1, 1, 0, 0, 0, 2, 0], 
-#         [2, 0, 1, 0, 1, 0, 0, 0], 
-#         [0, 1, 0, 0, 0, 0, 0, 2], 
-#         [2, 0, 1, 0, 0, 0, 0, 2], 
-#         [2, 0, 0, 1, 0, 1, 0, 0], 
-#         [0, 0, 1, 0, 0, 0, 0, 0]], 2, 9, 7, [1])
-
-# start_state = State([
-#         [0, 0, 2, 2, 2, 2, 0, 0],
-#         [0, 0, 2, 2, 2, 2, 0, 0], 
-#         [0, 2, 0, 2, 2, 2, 0, 0], 
-#         [0, 0, 0, 0, 0, 0, 0, 0], 
-#         [2, 0, 0, 0, 1, 1, 2, 0], 
-#         [0, 2, 2, 0, 0, 0, 0, 0], 
-#         [0, 0, 0, 0, 0, 0, 2, 0], 
-#         [0, 0, 0, 0, 0, 0, 0, 0]], 1, 2, 17, [1])
