@@ -1,4 +1,5 @@
 from eximo import Eximo
+from eval import *
 import signal
 import sys
 
@@ -34,19 +35,19 @@ def print_main_menu():
     print('|                                            |')
     print('----------------------------------------------', end="")
 
-def print_level_menu():
+def print_heuristic_menu(player):
     print('----------------------------------------------')
     print('|                                            |')
     print('|                                            |')
     print('|' + '                ' + TGREEN + '    EXIMO                  ', ENDC + '|')
-    print('|' + '          ' + TRED + 'Choose the computer level:       ', ENDC + '|')
+    print('|' + '          ' + TRED + 'Choose computer ' + str(player) + '\'s heuristic:       ', ENDC + '|')
     print('|                                            |')
+    print('|' + '             ' + TGREEN + '1)', ENDC + 'Centralized                 ' + '|')
+    print('|' + '             ' + TGREEN + '2)', ENDC + 'Decentralized               ' + '|')
+    print('|' + '             ' + TGREEN + '3)', ENDC + 'Subtraction                 ' + '|')
+    print('|' + '             ' + TGREEN + '4)', ENDC + 'Number of pieces            ' + '|')
+    print('|' + '             ' + TGREEN + '5)', ENDC + 'Number of moves             ' + '|')
     print('|                                            |')
-    print('|                                            |')
-    print('|' + '             '+ TGREEN+'1)',ENDC + 'Easy                        ' + '|')
-    print('|' + '             '+ TGREEN+'2)',ENDC + 'Hard                        ' + '|')
-    print('|                                            |')
-    print('|' + '             '+ TGREEN+'0)',ENDC + 'Return to main menu         ' + '|')
     print('|                                            |')
     print('|                                            |')
     print('|                                            |')
@@ -67,25 +68,46 @@ def game_mode():
 
 def computer_level(player):
     while True:
-        print_level_menu()
-        print('\n')
-
-        level = input(TRED +'Computer level [player ' + str(player) + ']: '+ ENDC)
+        level = input(TRED +'Computer level [player ' + str(player) + '] (> 0): '+ ENDC)
 
         while len(level) > 1 or len(level) == 0:
-            level = input(TRED +'Computer level [player ' + str(player) + ']: '+ ENDC)
+            level = input(TRED +'Computer level [player ' + str(player) + '] (> 0): '+ ENDC)
 
         computer_level = ord(level) - 48
 
         if computer_level in range(0, 10):
             return computer_level
 
+def sel_heuristic(player):
+    while True:
+        print_heuristic_menu(player)
+        print()
+
+        h = input(TRED +'Computer ' + str(player) + '\'s heuristic : '+ ENDC)
+
+        if len(h) == 0: continue
+
+        h = ord(h) - 48
+        
+        if not h in range(0, 6): continue
+
+        if h == 1:
+            return center
+        elif h == 2:
+            return side
+        elif h == 3:
+            return subtraction
+        elif h == 4:
+            return num_pieces
+        elif h == 5:
+            return available_moves
+
 def main_menu():
     player = {}
 
     while True:
-        player[1] = 'P'
-        player[2] = 'P'
+        player[1] = ['P', 0, None]
+        player[2] = ['P', 0, None]
 
         print_main_menu()
         print('\n')
@@ -93,20 +115,36 @@ def main_menu():
         game = game_mode()
 
         if game == 2:
+            h = sel_heuristic(2)
             level = computer_level(2)
-            if level == 0: continue
-            player[2] = 'C' + str(level)
+            
+            player[2][0] = 'C'
+            player[2][1] = level
+            player[2][2] = h
+
         elif game == 3:
+            h = sel_heuristic(1)
             level = computer_level(1)
-            if level == 0: continue
-            player[1] = 'C' + str(level)
+            
+            player[1][0] = 'C'
+            player[1][1] = level
+            player[1][2] = h
+            
         elif game == 4:
-            level1 = computer_level(1)
-            if level1 == 0: continue
-            level2 = computer_level(2)
-            if level2 == 0: continue
-            player[1] = 'C' + str(level1)
-            player[2] = 'C' + str(level2)
+            h = sel_heuristic(1)
+            level = computer_level(1)
+            
+            player[1][0] = 'C'
+            player[1][1] = level
+            player[1][2] = h
+
+            h = sel_heuristic(2)
+            level = computer_level(2)
+            
+            player[2][0] = 'C'
+            player[2][1] = level
+            player[2][2] = h
+
         elif game == 0:
             print(TGREEN + 'Thank you for playing.', ENDC)
             sys.exit()

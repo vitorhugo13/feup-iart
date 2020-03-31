@@ -8,6 +8,8 @@ import sys
 
 import time
 
+from typing import Callable
+
 
 class Eximo:
     prv_player = 2
@@ -15,7 +17,7 @@ class Eximo:
     cuts = 0
     children = 0
 
-    def __init__(self, p1: str, p2: str):
+    def __init__(self, p1: list, p2: list):
         self.player = {}
         self.player[1] = p1
         self.player[2] = p2
@@ -45,12 +47,12 @@ class Eximo:
 
             self.prv_player = state.player
 
-            if self.player[state.player] == 'P':
+            if self.player[state.player][0] == 'P':
                 state = self.player_move(state)
+            
             else:
-                depth = int(self.player[state.player][1:])
                 start = time.time()
-                state = self.minimax_prunning(state, depth, state.player, center)
+                state = self.minimax_prunning(state, self.player[state.player][1], state.player, self.player[state.player][2])
                 end = time.time()
                 print("------- MINIMAX STATS START --------")
                 print("elapsed time : " + str(end - start) + " seconds")
