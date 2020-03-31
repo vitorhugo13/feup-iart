@@ -50,7 +50,7 @@ class Eximo:
             else:
                 depth = int(self.player[state.player][1:])
                 start = time.time()
-                state = self.minimax_prunning(state, depth, state.player)
+                state = self.minimax_prunning(state, depth, state.player, center)
                 end = time.time()
                 print("------- MINIMAX STATS START --------")
                 print("elapsed time : " + str(end - start) + " seconds")
@@ -189,7 +189,7 @@ class Eximo:
                 return children[min_index]
 
     # @staticmethod
-    def minimax_prunning(self, state, depth, max_player):
+    def minimax_prunning(self, state, depth, max_player, eval):
         if depth <= 0:
             return state
 
@@ -198,7 +198,7 @@ class Eximo:
         best_child = state
 
         for child in state.get_children():
-            score = self.minimax_score(child, depth - 1, max_player, best_score)
+            score = self.minimax_score(child, depth - 1, max_player, best_score, eval)
             if better(score, best_score):
                 best_score = score
                 best_child = child
@@ -206,11 +206,11 @@ class Eximo:
         return best_child
 
     # @staticmethod
-    def minimax_score(self, state, depth, max_player, parent_best):
+    def minimax_score(self, state, depth, max_player, parent_best, eval):
         if depth <= 0:
             # return state.score[max_player]
             self.children += 1
-            return center(state)
+            return eval(state)
             # return available_moves(state)
 
 
@@ -218,7 +218,7 @@ class Eximo:
         best_score = -1 if state.player == max_player else sys.maxsize
         
         for child in state.get_children():
-            score = self.minimax_score(child, depth - 1, max_player, best_score)
+            score = self.minimax_score(child, depth - 1, max_player, best_score, eval)
             if better(score, parent_best): # abort early because this branch will not be picked
                 self.cuts += 1
                 return score
