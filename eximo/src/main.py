@@ -40,7 +40,7 @@ def print_heuristic_menu(player):
     print('|                                            |')
     print('|                                            |')
     print('|' + '                ' + TGREEN + '    EXIMO                  ', ENDC + '|')
-    print('|' + '          ' + TRED + 'Choose computer ' + str(player) + '\'s heuristic:       ', ENDC + '|')
+    print('|' + '         ' + TRED + 'Choose computer ' + str(player) + '\'s heuristic:    ', ENDC + '|')
     print('|                                            |')
     print('|' + '             ' + TGREEN + '1)', ENDC + 'Centralized                 ' + '|')
     print('|' + '             ' + TGREEN + '2)', ENDC + 'Decentralized               ' + '|')
@@ -85,7 +85,7 @@ def sel_heuristic(player):
 
         h = input(TRED +'Computer ' + str(player) + '\'s heuristic : '+ ENDC)
 
-        if len(h) == 0: continue
+        if len(h) == 0 or len(h) > 1: continue
 
         h = ord(h) - 48
         
