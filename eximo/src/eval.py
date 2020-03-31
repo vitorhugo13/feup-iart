@@ -1,9 +1,13 @@
 from state import *
 
-#numero de peças do jogador - número de peças do adversário
+
+#file with heuristic functions
+
+#number of player's pieces - number of opponent's pieces
 def subtraction(state: State) -> int:
     return 1000 + (state.score[state.player % 2 + 1] - state.score[state.player]) * 10
 
+#number of player's pieces at the board
 def num_pieces(state: State) -> int:
     return state.score[state.player % 2 + 1]
 

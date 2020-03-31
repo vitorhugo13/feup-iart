@@ -3,13 +3,17 @@ from eval import *
 import signal
 import sys
 
+####################################################################
+####    file with interface functions and that start the game   ####
+####################################################################
+
+
 TGREEN =  '\033[32m' # Green Text
-TRED =  '\033[31m' # Green Text
+TRED =  '\033[31m' # Red Text
 
 ENDC = '\033[m' # reset to the defaults
 
 def signal_handler(sig, frame):
-    # print('\n')
     print('Exiting game. Hope to see you soon!')
     sys.exit(0)
 signal.signal(signal.SIGINT, signal_handler)
@@ -17,6 +21,7 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # interface functions
 
+#prints main menu
 def print_main_menu():
     print('----------------------------------------------')
     print('|                                            |')
@@ -35,6 +40,7 @@ def print_main_menu():
     print('|                                            |')
     print('----------------------------------------------', end="")
 
+#prints heuristic menu
 def print_heuristic_menu(player):
     print('----------------------------------------------')
     print('|                                            |')
@@ -52,7 +58,7 @@ def print_heuristic_menu(player):
     print('|                                            |')
     print('----------------------------------------------', end="")
 
-
+#handle game mode input
 def game_mode():
     while True:
         mode = input(TRED +'Game Mode: '+ ENDC)
@@ -65,6 +71,7 @@ def game_mode():
         if game_mode in range(0, 5):
             return game_mode
 
+#handle computer level input
 def computer_level(player):
     while True:
         level = input(TRED +'Computer level [player ' + str(player) + '] (> 0): '+ ENDC)
@@ -77,6 +84,7 @@ def computer_level(player):
         if computer_level in range(0, 10):
             return computer_level
 
+#handle heuristic input
 def sel_heuristic(player):
     while True:
         print_heuristic_menu(player)
@@ -99,6 +107,7 @@ def sel_heuristic(player):
         elif h == 4:
             return num_pieces
 
+#function responsible for starting the game in the correct mode with correct heuristic functions and level
 def main_menu():
     player = {}
 
