@@ -1,15 +1,16 @@
 from eximo import *
 
 
+file = open("data.csv", "w")
 
-for depth_p1 in range(2, 6):
-    for depth_p2 in range(2, 6):
-        for h_p1 in [subtraction, num_pieces, available_moves, side, center]:
-            for h_p2 in [subtraction, num_pieces, available_moves, side, center]:
-                
-                # exclude special cases
-                # if depth_p1 == 1 and depth_p2 == 1 and h_p1 == subtraction and h_p2 == subtraction:
-                #     continue
+file.write('Player,Depth,Heuristic,Total Plays,Total Time,Total Leaves,Total Cuts,Won\n')
+
+for depth_p1 in range(1, 5):
+    for depth_p2 in range(1, 5):
+        for h_p1 in [subtraction, num_pieces, side, center]:
+            for h_p2 in [subtraction, num_pieces, side, center]:
                 
                 game = Eximo(['C', depth_p1, h_p1], ['C', depth_p2, h_p2])
-                game.statistics('data.csv')
+                game.statistics(file)
+
+file.close()

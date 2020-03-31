@@ -62,18 +62,11 @@ class Eximo:
                 self.cuts = 0
                 self.children = 0
 
-    def statistics(self, filename):
-        file = open(filename, "w")
+    def statistics(self, file):
 
-        # plays = {}
-        # plays[1] = [0, 0, 0, 0]
-        # plays[2] = [0, 0, 0, 0]
-
-        file.write('Player,Depth,Heuristic')
-        file.write('\n1,' + str(self.player[1][1]) + ',' + str(self.player[1][2].__name__))
-        file.write('\n2,' + str(self.player[2][1]) + ',' + str(self.player[2][2].__name__))
-        file.write('\n')
-        file.write('\nPlayer,Elapsed Time,Leaves,Cuts')
+        plays = {}
+        plays[1] = [0, 0, 0, 0, 0]
+        plays[2] = [0, 0, 0, 0, 0]
         
         state = start_state
         state.prv_player = state.player % 2 + 1
@@ -84,28 +77,33 @@ class Eximo:
             state = self.minimax_prunning(state, self.player[state.player][1], state.player, self.player[state.player][2])
             end = time.time()
             
-            # plays[state.player % 2 + 1][0] += 1
-            # plays[state.player % 2 + 1][1] += end - start
-            # plays[state.player % 2 + 1][2] += self.children
-            # plays[state.player % 2 + 1][3] += self.cuts
-
-            file.write('\n' + str(state.player % 2 + 1) + ',' + str(end - start) + ',' + str(self.children) + ',' + str(self.cuts))
+            plays[state.player % 2 + 1][0] += 1
+            plays[state.player % 2 + 1][1] += end - start
+            plays[state.player % 2 + 1][2] += self.children
+            plays[state.player % 2 + 1][3] += self.cuts
 
             self.cuts = 0
             self.children = 0
 
             if state.score[1] <= 0:
-                file.write('\n\nWinner,2')
+                plays[2][4] = 1
                 break
             elif state.score[2] <= 0:
-                file.write('\n\nWinner,1')
+                plays[1][4] = 1
                 break
             elif self.prv_player == state.player:
-                file.write('\n\nWinner,' + str(state.player % 2 + 1) + '\n\n\n')
+                plays[state.player % 2 + 1][4] = 1
+                break
+            elif plays[state.player][0] >= 1000:
+                plays[1][4] = 1
+                plays[2][4] = 1
                 break
         
-        file.close()
-
+        file.write('1,' + str(self.player[1][1]) + ',' + str(self.player[1][2].__name__) + ',' + str(plays[1][0]) + ',' + str(plays[1][1]) + ',' + str(plays[1][2]) + ',' + str(plays[1][3]) + ',' + str(plays[1][4]) + '\n')
+        file.write('2,' + str(self.player[2][1]) + ',' + str(self.player[2][2].__name__) + ',' + str(plays[2][0]) + ',' + str(plays[2][1]) + ',' + str(plays[2][2]) + ',' + str(plays[2][3]) + ',' + str(plays[2][4]) + '\n\n')
+        
+        print('1,' + str(self.player[1][1]) + ',' + str(self.player[1][2].__name__) + ',' + str(plays[1][0]) + ',' + str(plays[1][4]))
+        print('2,' + str(self.player[2][1]) + ',' + str(self.player[2][2].__name__) + ',' + str(plays[2][0]) + ',' + str(plays[2][4]))
 
     @staticmethod
     def sel_cell() -> tuple:
