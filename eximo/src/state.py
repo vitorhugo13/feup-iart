@@ -8,7 +8,7 @@ class State:
     # 1 - start of a play           ex: [1]
     # 2 - middle of a jump move     ex: [2, (3, 4)]
     # 3 - middle of a capture move  ex: [3, (4, 1)]
-    # 4 - middle of a place move    ex: [4, 3]
+    # 4 - middle of a place move    ex: [4, 2]
 
 
     def __init__(self, board, player, s1, s2, action):
@@ -112,17 +112,6 @@ class State:
             ret_states.extend(state.get_children())
         
         return result
-
-        # tmp_states = []
-        # for state in ret_states:
-        #     if state.action[0] == 1:
-        #         continue
-
-        #     tmp_states.extend(state.get_children())
-        #     ret_states.remove(state)
-
-        # ret_states.extend(tmp_states)
-        # return ret_states
 
     # ORDINARY MOVE OPERATORS
     def move(self, pos: tuple, vec: tuple):
@@ -333,3 +322,12 @@ start_state = State([
         [0, 1, 1, 1, 1, 1, 1, 0], 
         [0, 1, 1, 1, 1, 1, 1, 0]], 1, 16, 16, [1])
 
+# start_state = State([
+#         [0, 0, 0, 0, 0, 0, 0, 0],
+#         [0, 0, 0, 0, 0, 0, 0, 2], 
+#         [0, 1, 1, 0, 0, 0, 2, 0], 
+#         [2, 0, 1, 0, 1, 0, 0, 0], 
+#         [0, 1, 0, 0, 0, 0, 0, 2], 
+#         [2, 0, 1, 0, 0, 0, 0, 2], 
+#         [2, 0, 0, 1, 0, 1, 0, 0], 
+#         [0, 0, 1, 0, 0, 0, 0, 0]], 2, 9, 7, [1])

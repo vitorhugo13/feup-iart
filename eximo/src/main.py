@@ -77,7 +77,7 @@ def computer_level(player):
 
         computer_level = ord(level) - 48
 
-        if computer_level in range(0, 5):
+        if computer_level in range(0, 10):
             return computer_level
 
 def main_menu():

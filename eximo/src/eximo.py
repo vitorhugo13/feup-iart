@@ -12,6 +12,9 @@ import time
 class Eximo:
     prv_player = 2
 
+    cuts = 0
+    children = 0
+
     def __init__(self, p1: str, p2: str):
         self.player = {}
         self.player[1] = p1
@@ -35,6 +38,8 @@ class Eximo:
 
     def play(self):
         state = start_state
+        self.prv_player = state.player % 2 + 1
+
         while not self.game_over(state):
             state.print()
 
@@ -44,12 +49,16 @@ class Eximo:
                 state = self.player_move(state)
             else:
                 depth = int(self.player[state.player][1:])
-                print("------- MINIMAX START --------")
                 start = time.time()
-                state = minimax(state, depth, state.player)
+                state = self.minimax_prunning(state, depth, state.player)
                 end = time.time()
-                print("------- MINIMAX END --------")
-                print("elapsed time : " + str(end - start) + "seconds")
+                print("------- MINIMAX STATS START --------")
+                print("elapsed time : " + str(end - start) + " seconds")
+                print("number of children : " + str(self.cuts))
+                print("number of cuts : " + str(self.children))
+                print("-------- MINIMAX STATS END ---------")
+                self.cuts = 0
+                self.children = 0
 
 
     @staticmethod
@@ -179,37 +188,41 @@ class Eximo:
             else:
                 return children[min_index]
 
-def minimax(state, depth, max_player):
-    if depth <= 0:
-        return state
+    # @staticmethod
+    def minimax_prunning(self, state, depth, max_player):
+        if depth <= 0:
+            return state
 
-    better = lambda a, b: a > b if state.player == max_player else a < b
-    best_score = -1 if state.player == max_player else sys.maxsize
-    best_child = state
+        better = lambda a, b: a > b if state.player == max_player else a < b
+        best_score = -1 if state.player == max_player else sys.maxsize
+        best_child = state
 
-    for child in state.get_children():
-        score = minimax_score(child, depth - 1, max_player, best_score)
-        if better(score, best_score):
-            best_score = score
-            best_child = child
+        for child in state.get_children():
+            score = self.minimax_score(child, depth - 1, max_player, best_score)
+            if better(score, best_score):
+                best_score = score
+                best_child = child
 
-    return best_child
+        return best_child
 
-def minimax_score(state, depth, max_player, parent_best):
-    if depth <= 0:
-        # return state.score[max_player]
-        # return center(state)
-        return available_moves(state)
+    # @staticmethod
+    def minimax_score(self, state, depth, max_player, parent_best):
+        if depth <= 0:
+            # return state.score[max_player]
+            self.children += 1
+            return center(state)
+            # return available_moves(state)
+
+
+        better = lambda a, b: a > b if state.player == max_player else a <= b
+        best_score = -1 if state.player == max_player else sys.maxsize
         
-    
-    better = lambda a, b: a > b if state.player == max_player else a <= b
-    best_score = -1 if state.player == max_player else sys.maxsize
+        for child in state.get_children():
+            score = self.minimax_score(child, depth - 1, max_player, best_score)
+            if better(score, parent_best): # abort early because this branch will not be picked
+                self.cuts += 1
+                return score
+            if better(score, best_score):
+                best_score = score
 
-    for child in state.get_children():
-        score = minimax_score(child, depth - 1, max_player, best_score)
-        if better(score, parent_best): # abort early because this branch will not be picked
-            return score
-        if better(score, best_score):
-            best_score = score
-
-    return best_score
+        return best_score

@@ -2,9 +2,10 @@ from state import *
 
 #numero de peças do jogador - número de peças do adversário
 def subtraction(state: State) -> int:
-    return state.score[state.player % 2 + 1] - state.score[state.player]
+    return 64 + state.score[state.player % 2 + 1] - state.score[state.player]
 
 # numero de peças do jogador multiplicado por um fator no placement
+# FIXME: isto nao vai funcionar porque os filhos estao sempre no estado start
 def placement_factor(state: State) -> int:
     if state.action == 4:
         return state.score[state.player] 
