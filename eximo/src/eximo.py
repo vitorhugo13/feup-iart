@@ -10,18 +10,20 @@ import time
 
 from typing import Callable
 
-
+#main game class
 class Eximo:
     prv_player = 2
 
     cuts = 0
     children = 0
 
+    #game builder who receives the necessary information about each player
     def __init__(self, p1: list, p2: list):
         self.player = {}
         self.player[1] = p1
         self.player[2] = p2
 
+    #funtion that checks if the game reachs the end and prints the winner
     def game_over(self, state: State) -> bool:
         if state.score[1] <= 0:
             state.print()
@@ -38,6 +40,7 @@ class Eximo:
             return True
         return False
 
+    #function responsible for the beginning of the game and that contains the cycle that allows the game to continue until reaching a final state
     def play(self):
         state = start_state
         self.prv_player = state.player % 2 + 1
@@ -105,6 +108,8 @@ class Eximo:
         print('1,' + str(self.player[1][1]) + ',' + str(self.player[1][2].__name__) + ',' + str(plays[1][0]) + ',' + str(plays[1][4]))
         print('2,' + str(self.player[2][1]) + ',' + str(self.player[2][2].__name__) + ',' + str(plays[2][0]) + ',' + str(plays[2][4]))
 
+
+    #verification of the selected piece
     @staticmethod
     def sel_cell() -> tuple:
         while True:
@@ -122,6 +127,7 @@ class Eximo:
             if State.valid_position((row, col)):
                 return (row, col)
 
+    #allows you to choose the capture direction
     @staticmethod
     def sel_cp_dir() -> tuple:
         while True:
@@ -137,6 +143,7 @@ class Eximo:
             elif dir == 'E':
                 return Direction.EAST
 
+    #allows you to choose the move/jump direction
     @staticmethod
     def sel_mv_dir() -> tuple:
         while True:
@@ -148,6 +155,7 @@ class Eximo:
             elif dir == 'NE':
                 return Direction.NORTHEAST
 
+    #function that performs the move through the piece and the direction
     @staticmethod
     def player_move(state) -> State:
         n_state = None
@@ -190,6 +198,7 @@ class Eximo:
 
         return n_state
 
+    #simple minimax function
     @staticmethod
     def minimax(state: State, depth: int, max_player: int, root: bool) -> State:
         
@@ -232,6 +241,7 @@ class Eximo:
             else:
                 return children[min_index]
 
+    #minimax function with alpha-beta prunning
     # @staticmethod
     def minimax_prunning(self, state, depth, max_player, eval):
         if depth <= 0:
@@ -249,6 +259,7 @@ class Eximo:
 
         return best_child
 
+    #function that evaluates the node value
     # @staticmethod
     def minimax_score(self, state, depth, max_player, parent_best, eval):
         if depth <= 0:

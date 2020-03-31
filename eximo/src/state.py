@@ -10,7 +10,7 @@ class State:
     # 3 - middle of a capture move  ex: [3, (4, 1)]
     # 4 - middle of a place move    ex: [4, 2]
 
-
+    # state constructor
     def __init__(self, board, player, s1, s2, action):
         self.board = board
         self.player = player
@@ -26,12 +26,14 @@ class State:
     def in_last_row(self, pos: tuple) -> bool:
         return (self.player == 1 and pos[0] == 0) or (self.player == 2 and pos[0] == 7)
 
-    def copy(self):
+    # copy the current state and returns its copy
+    def copy(self) -> State:
         board = [row.copy() for row in self.board]
         player = self.player + 0
         action = copy(self.action)
         return State(board, player, self.score[1], self.score[2], action)
 
+    # return all the possible states that can be achieved 
     def get_children(self) -> list:
         
         ret_states = []
