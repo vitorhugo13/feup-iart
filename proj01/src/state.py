@@ -27,7 +27,7 @@ class State:
         return (self.player == 1 and pos[0] == 0) or (self.player == 2 and pos[0] == 7)
 
     # copy the current state and returns its copy
-    def copy(self) -> State:
+    def copy(self):
         board = [row.copy() for row in self.board]
         player = self.player + 0
         action = copy(self.action)
