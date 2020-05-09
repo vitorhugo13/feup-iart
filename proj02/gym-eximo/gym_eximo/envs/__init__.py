@@ -1,1 +1,1 @@
-from gym_foo.envs.foo_env import EximoEnv
+from gym_eximo.envs.eximo_env import EximoEnv

@@ -1,6 +1,7 @@
 from colorama import Fore, Back, Style 
 from copy import copy
-from utils import add, mult, Direction
+
+from .utils import add, mult, Direction
 
 
 class State:
@@ -33,92 +34,6 @@ class State:
         player = self.player + 0
         action = copy(self.action)
         return State(board, player, self.score[1], self.score[2], action)
-
-    # return the direct children states 
-    def get_children(self) -> list:
-        
-        ret_states = []
-
-        # start mode - the player is free to do whatever move he can, 
-        # however, if he has the chance to capture he must do so
-        if self.action[0] == 1:
-            regular_arr = []
-
-            for row in range(0,8): 
-                for col in range(0,8):
-                    pos = (row, col)
-
-                    if not self.is_ally(pos):
-                        continue
-                    
-                    for vec in [Direction.WEST, Direction.EAST]:
-                        n_state = self.capture(pos, vec)
-                        if n_state != None: ret_states.append(n_state)
-
-                    for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
-                        n_state = self.capture(pos, vec)
-                        if n_state != None: ret_states.append(n_state)
-
-                        # if capturing is possible, there is no need to check for more moves other than captures
-                        if ret_states: continue
-                        
-                        n_state = self.move(pos, vec) or self.jump(pos, vec)
-                        if n_state != None: 
-                            regular_arr.append(n_state)
-
-            # no captures are possible, so all other possible moves are added to the return list
-            if not ret_states:
-                ret_states.extend(regular_arr)
-        
-        # jump mode
-        elif self.action[0] == 2:
-            for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
-                n_state = self.jump(self.action[1], vec)
-                if n_state != None: ret_states.append(n_state)
-
-        # capture mode
-        elif self.action[0] == 3:
-            for vec in [Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST]:
-                n_state = self.capture(self.action[1], vec)
-                if n_state != None: ret_states.append(n_state)
-
-        # place mode
-        elif self.action[0] == 4:
-            row_c = 0 if (self.player == 2) else 6
-
-            # try to place one piece on the dropzone
-            for row in range(0, 2):
-                for col in range(1, 7):
-                    if not self.is_empty((row_c + row, col)):
-                        continue
-                    n_state = self.place((row_c + row, col))
-
-                    # if only possible/needed to place one
-                    if n_state.action[0] == 1:
-                        ret_states.append(n_state)
-                        continue
-                    
-                    # place the second piece in always in front of the previous piece, 
-                    # this way no states are repeated and the number of children is reduced
-                    tmp_col = col + 1
-                    for i in range(row, 2):
-                        for j in range(tmp_col, 7):
-                            if not self.is_empty((row_c + i, j)):
-                                continue
-                            f_state = n_state.place((row_c + i, j))
-                            ret_states.append(f_state)
-                        tmp_col = 1
-        
-        result = []
-        for state in ret_states:
-            # check if a state is a start action, if not get_children of that state until a start state          
-            if state.action[0] == 1:
-                result.append(state)
-                continue
-            
-            ret_states.extend(state.get_children())
-        
-        return result
 
     # ORDINARY MOVE OPERATORS
     def move(self, pos: tuple, vec: tuple):
@@ -322,6 +237,58 @@ class State:
             self.action = [4, 1]
         else:
             self.next_turn()
+
+    def has_moves(self) -> bool:
+        # start mode - the player is free to do whatever move he can, 
+        # however, if he has the chance to capture he must do so
+        if self.action[0] == 1:
+
+            for row in range(0,8): 
+                for col in range(0,8):
+                    pos = (row, col)
+
+                    if not self.is_ally(pos):
+                        continue
+                    
+                    for vec in [Direction.WEST, Direction.EAST]:
+                        n_state = self.capture(pos, vec)
+                        if n_state != None:
+                            return True
+
+                    for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
+                        n_state = self.capture(pos, vec)
+                        if n_state != None:
+                            return True
+                        
+                        n_state = self.move(pos, vec) or self.jump(pos, vec)
+                        if n_state != None: 
+                            return True        
+        # jump mode
+        elif self.action[0] == 2:
+            for vec in [Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST]:
+                n_state = self.jump(self.action[1], vec)
+                if n_state != None:
+                    return True
+
+        # capture mode
+        elif self.action[0] == 3:
+            for vec in [Direction.WEST, Direction.NORTHWEST, Direction.NORTH, Direction.NORTHEAST, Direction.EAST]:
+                n_state = self.capture(self.action[1], vec)
+                if n_state != None:
+                    return True
+
+        # place mode
+        elif self.action[0] == 4:
+            row_c = 0 if (self.player == 2) else 6
+
+            # try to place one piece on the dropzone
+            for row in range(0, 2):
+                for col in range(1, 7):
+                    if not self.is_empty((row_c + row, col)):
+                        continue
+                    return True
+
+        return False
 
 start_state = State([
     [0, 2, 2, 2, 2, 2, 2, 0],

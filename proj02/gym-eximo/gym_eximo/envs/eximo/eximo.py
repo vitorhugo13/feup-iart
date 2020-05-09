@@ -1,8 +1,8 @@
 from colorama import Fore, Back, Style 
 from copy import copy
 
-from state import State, start_state
-from utils import Direction
+from .state import State, start_state
+from .utils import Direction
 
 
 #main game class
@@ -24,21 +24,21 @@ class Eximo:
 
 
     #funtion that checks if the game reachs the end and prints the winner
-    def game_over(self, state: State) -> bool:
+    def game_over(self, state: State) -> tuple:
         if state.score[1] <= 0:
             state.print()
             print("Player 2 won!")
-            return True
+            return (True, 2)
         elif state.score[2] <= 0:
             state.print()
             print("Player 1 won!")
-            return True
-        elif self.prv_player == state.player:
+            return (True, 1)
+        elif not state.has_moves():
             state.print()
             print('Player ' + str(state.player) + ' has ran out of moves...')
             print('Player ' + str(state.player % 2 + 1) + ' won!')
-            return True
-        return False
+            return (True, state.player % 2 + 1)
+        return (False, 0)
 
     #function responsible for the beginning of the game and that contains the cycle that allows the game to continue until reaching a final state
     def play(self):
