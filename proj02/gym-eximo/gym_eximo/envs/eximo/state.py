@@ -225,6 +225,8 @@ class State:
         return n_state
     
     def place(self, pos: tuple):
+        #  TODO: verify if the player can place a piece
+        # return the same state if placing is not possible
         n_state = self.copy()
         n_state.place_piece(pos, n_state.player)
         n_state.action[1] -= 1

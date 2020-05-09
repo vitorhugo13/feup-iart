@@ -16,6 +16,12 @@ class Eximo:
         self.player[2] = p2
         self.state = start_state
 
+    def restart(self):
+        self.state = start_state
+    
+    def render(self):
+        self.state.print()
+
 
     #funtion that checks if the game reachs the end and prints the winner
     def game_over(self, state: State) -> bool:
