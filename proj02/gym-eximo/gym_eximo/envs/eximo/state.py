@@ -21,6 +21,12 @@ class State:
         self.score[1] = s1
         self.score[2] = s2
 
+    def __eq__(self, other):
+        if not isinstance(other, State):
+            return NotImplemented
+        
+        return self.board == other.board and self.player == other.player and self.action == other.action
+
     @staticmethod
     def valid_position(pos: tuple) -> bool:
         return pos[0] in range(0, 8) and pos[1] in range(0, 8)

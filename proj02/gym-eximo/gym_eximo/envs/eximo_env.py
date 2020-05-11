@@ -2,6 +2,8 @@ import gym
 from gym import error, spaces, utils
 from gym.utils import seeding
 
+import numpy as np
+
 from .eximo.eximo import Eximo
 from .eximo.state import State
 from .eximo.utils import Direction
@@ -10,14 +12,19 @@ from .eximo.utils import Direction
 class EximoEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
+    # step_num = 0
 
     def __init__(self):
         self.game = Eximo(['P', 0, None], ['P', 0, None])
         self.action_space = spaces.Discrete(606) # 54 pieces * 11 moves + 12 placement positions
-        return
+        max = np.iinfo(np.uint64).max
+        self.observation_space = spaces.Box(low=np.array([0,0,0,0], dtype=np.uint64), high=np.array([max,max,2,512], dtype=np.uint64), dtype=np.uint64)
 
-    # TODO: define the action space and observation space
+
     def step(self, action):
+
+        # self.step_num += 1
+        # print(self.step_num)
 
         state = self.game.state
 
@@ -87,16 +94,63 @@ class EximoEnv(gym.Env):
                 else:
                     n_state = state
 
-        self.game.state = n_state
-        observation = n_state
+        observation = self.encode_state(n_state)
         done, winner = self.game.game_over(n_state)
         
         if done:
-            reward = 100 if (winner == state.player) else -100
+            reward = 100000 if (winner == state.player) else -100000
         else:
-            reward = 0
+            if self.game.state == n_state:
+                reward = -0.1
+            else:
+                reward = 0.1
 
-        return observation, reward, done, winner 
+        self.game.state = n_state
+
+        info = {
+            'winner' : winner
+        }
+
+        return observation, reward, done, info
+
+    def encode_state(self, state: State) -> list:
+
+        # [1] [2, (1,2)] [3, (1,2)] [4, 2]
+        # 00 01 10 11
+        # 01 ou 10 -> 64 posiçoes = 6 bits
+        # 11 -> 3 opçoes = 2 bits
+
+        bits_p1 = ''
+        bits_p2 = ''
+        for x in range(0, 8):
+            for y in range(0, 8):
+                if (state.board[x][y] == 1):
+                    bits_p1 += '1'
+                    bits_p2 += '0'
+                elif(state.board[x][y] == 2):
+                    bits_p1 += '0'
+                    bits_p2 += '1'
+                else:
+                    bits_p1 += '0'
+                    bits_p2 += '0'
+
+        board_p1 = np.uint64(int(bits_p1, 2))
+        board_p2 = np.uint64(int(bits_p2, 2))
+
+        player = np.uint64(state.player - 1)
+
+        action_num = 0
+        if state.action[0] in [2, 3]:
+            action_num = state.action[1][0] * 8 + state.action[1][1]
+        elif state.action[0] == 4:
+            action_num = state.action[1]
+
+        bits_action = "{0:{fill}2b}".format(state.action[0] - 1, fill='0')
+        bits_action += "{0:{fill}6b}".format(action_num, fill='0')
+
+        action = np.uint64(int(bits_action, 2))
+
+        return np.array([board_p1, board_p2, player, action], dtype=np.uint64)
 
     def exec_move(self, move: int, state: State, pos: tuple) -> State:
         if move == 0:
@@ -129,7 +183,9 @@ class EximoEnv(gym.Env):
 
     def reset(self):
         self.game.restart()
-        return self.game.state
+        print('reset')
+        self.game.render()
+        return self.encode_state(self.game.state)
 
     def render(self, mode='human'):
         self.game.render()

@@ -17,7 +17,7 @@ class Eximo:
         self.state = start_state
 
     def restart(self):
-        self.state = start_state
+        self.state = start_state.copy()
     
     def render(self):
         self.state.print()
@@ -44,7 +44,7 @@ class Eximo:
     def play(self):
         self.prv_player = self.state.player % 2 + 1
 
-        while not self.game_over(state):
+        while not self.game_over(self.state):
             self.state.print()
 
             self.prv_player = self.state.player
