@@ -17,8 +17,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 env = gym.make('eximo-v0')
 
 model = PPO1(MlpPolicy, env, verbose=1)
-model.learn(total_timesteps=10000000, log_interval=1)
-model.save("models/ppo1_v3")
+model.learn(total_timesteps=1000000, log_interval=1)
+model.save("models/ppo1_v1")
 
 
 # model = PPO1.load("deepq_eximo")
