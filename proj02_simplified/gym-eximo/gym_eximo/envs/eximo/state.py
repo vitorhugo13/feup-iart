@@ -7,7 +7,7 @@ from .utils import add, mult, Direction
 class State:
 
     # action = (INNNER_STATE, (POS | NUM_PIECES)?)
-    # 1 - start of a play           ex: [1]
+    # 1 - start of a play           ex: \[1]
     # 2 - middle of a jump move     ex: [2, (3, 4)]
     # 3 - middle of a capture move  ex: [3, (4, 1)]
     # 4 - middle of a place move    ex: [4, 2]

@@ -7,12 +7,13 @@ import numpy as np
 from .eximo.eximo import Eximo
 from .eximo.state import State
 from .eximo.utils import Direction
+from .spaces.action import Action
 
 
 class EximoEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    # step_num = 0
+    step_num = 0
 
     def __init__(self):
         self.game = Eximo(['P', 0, None], ['P', 0, None])
@@ -21,11 +22,44 @@ class EximoEnv(gym.Env):
         max = np.iinfo(np.uint64).max
         self.observation_space = spaces.Box(low=np.array([0,0,0,0], dtype=np.uint64), high=np.array([max,max,2,512], dtype=np.uint64), dtype=np.uint64)
 
+    # @property
+    # def action_space(self):
+
+    #     dimension = 5
+
+    #     state = self.game.state
+         
+    #     # jump
+    #     if state.action[0] == 2:
+    #         print("   ------====== MID JUMP ======------   ")
+    #         piece = state.action[1][0] * dimension + state.action[1][1]
+    #         return Action([piece + 3, piece + 4, piece + 5])
+
+    #     # capture
+    #     elif state.action[0] == 3:
+    #         print("   ------====== MID CAPTURE ======------   ")
+    #         piece = state.action[1][0] * dimension + state.action[1][1]
+    #         return Action([piece + 6, piece + 7, piece + 8, piece + 9, piece + 10])
+
+    #     # placement
+    #     elif state.action[0] == 4:
+    #         print("   ------====== PLACEMENT ======------   ")
+    #         return Action([198, 199, 200])
+
+    #     # start
+    #     else:
+    #         return Action(list(range(0, 201)))
+            
 
     def step(self, action):
 
-        # self.step_num += 1
-        # print(self.step_num)
+        self.step_num += 1
+        # print('step : ' + str(self.step_num) + ' action : ' + str(action))
+
+        if (self.step_num % 1000) == 0:
+            print('STEP NUM :: ' + str(self.step_num))
+            self.game.state.print()
+        #     input('Press ENTER to continue...')
 
         state = self.game.state
 
@@ -33,9 +67,13 @@ class EximoEnv(gym.Env):
         if action < 198:    # 18 * 11
             # get cell index
             cell = action // 11
+
             cell += 1 if (cell < 3) else 2
             # get cell coords
             pos = (cell // 5, cell % 5)
+
+            if state.player == 1:
+                pos = (4 - pos[0], 4 - pos[1])
 
             # get move index
             move = action % 11

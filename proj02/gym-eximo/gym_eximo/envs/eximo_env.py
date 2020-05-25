@@ -12,7 +12,7 @@ from .eximo.utils import Direction
 class EximoEnv(gym.Env):
     metadata = {'render.modes': ['human']}
 
-    # step_num = 0
+    step_num = 0
 
     def __init__(self):
         self.game = Eximo(['P', 0, None], ['P', 0, None])
@@ -23,7 +23,11 @@ class EximoEnv(gym.Env):
 
     def step(self, action):
 
-        # self.step_num += 1
+        self.step_num += 1
+
+        if (self.step_num % 1000) == 0:
+            print('STEP NUM :: ' + str(self.step_num))
+            self.game.state.print()
         # print(self.step_num)
 
         state = self.game.state
@@ -35,6 +39,9 @@ class EximoEnv(gym.Env):
             cell += 1 if (cell < 6) else 2
             # get cell coords
             pos = (cell // 8, cell % 8)
+
+            if state.player == 1:
+                pos = (7 - pos[0], 7 - pos[1])
 
             # get move index
             move = action % 11
@@ -84,10 +91,10 @@ class EximoEnv(gym.Env):
                 cell = action - 594
                 cell += 1 if (cell < 6) else 3
 
-                if state.player == 1:
-                    cell += 49
-
                 pos = (cell // 8, cell % 8)
+
+                if state.player == 1:
+                    pos = (7 - pos[0], 7 - pos[1])
 
                 if state.is_empty(pos):
                     n_state = state.place(pos)
@@ -98,12 +105,9 @@ class EximoEnv(gym.Env):
         done, winner = self.game.game_over(n_state)
         
         if done:
-            reward = 100000 if (winner == state.player) else -100000
+            reward = 1 if (winner == state.player) else -1
         else:
-            if self.game.state == n_state:
-                reward = -0.1
-            else:
-                reward = 0.1
+            reward = 0
 
         self.game.state = n_state
 

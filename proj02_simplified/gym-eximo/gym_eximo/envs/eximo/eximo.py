@@ -44,7 +44,7 @@ class Eximo:
     def play(self):
         self.prv_player = self.state.player % 2 + 1
 
-        while not self.game_over(self.state):
+        while not self.game_over(self.state)[0]:
             self.state.print()
 
             self.prv_player = self.state.player
@@ -57,14 +57,14 @@ class Eximo:
     def sel_cell() -> tuple:
         while True:
             
-            row_number = input('Row (1-8): ')
+            row_number = input('Row (1-5): ')
             while len(row_number) > 1 or len(row_number) == 0:
-                row_number = input('Row (1-8): ') 
+                row_number = input('Row (1-5): ') 
             row = ord(row_number) - 49
 
-            col_number = input('Col (A-H): ').lower()
+            col_number = input('Col (A-E): ').lower()
             while len(col_number) > 1 or len(col_number) == 0:
-                col_number = input('Col (A-H): ').lower()
+                col_number = input('Col (A-E): ').lower()
             col = ord(col_number) - 97
 
             if State.valid_position((row, col)):
@@ -133,8 +133,8 @@ class Eximo:
             elif state.action[0] == 4:
                 pos = Eximo.sel_cell()
 
-                row = 2 if state.player == 2 else 8
-                if pos[1] not in range(1, 8) or pos[0] not in range(row - 2, row) or not state.is_empty(pos):
+                row = 0 if state.player == 2 else 4
+                if pos[1] not in range(1, 5) or not pos[0] == row or not state.is_empty(pos):
                     continue
 
                 n_state = state.place(pos)
