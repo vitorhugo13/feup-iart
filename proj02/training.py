@@ -14,7 +14,7 @@ warnings.filterwarnings("ignore")
 
 
 # create a directory for the trained agent and logs
-agent = 'ppo1_v3'
+agent = 'change'
 MODEL_DIR = 'models/'
 
 agent_dir = MODEL_DIR + agent + '/'
@@ -33,17 +33,17 @@ env = Monitor(env, agent_dir)
 # model.save(agent_dir + 'agent')
 
 
-from stable_baselines.common.policies import MlpPolicy
-from stable_baselines import PPO1
+# from stable_baselines.common.policies import MlpPolicy
+# from stable_baselines import PPO1
 
-model = PPO1(MlpPolicy, env, verbose=1)
-model.learn(total_timesteps=5000000, log_interval=1)
-model.save(agent_dir + 'agent')
+# model = PPO1(MlpPolicy, env, verbose=1)
+# model.learn(total_timesteps=5000000, log_interval=1)
+# model.save(agent_dir + 'agent')
 
 
 # from stable_baselines.common.policies import MlpPolicy
 # from stable_baselines import ACER
 
-# model = ACER(MlpPolicy, env, verbose=1)
-# model.learn(total_timesteps=5000000, log_interval=1)
+# model = ACER(MlpPolicy, env, verbose=1, learning_rate=0.01)
+# model.learn(total_timesteps=1000000, log_interval=1)
 # model.save(agent_dir + 'agent')
