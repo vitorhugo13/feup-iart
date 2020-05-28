@@ -28,3 +28,12 @@ register(
     id='eximo-v3',
     entry_point='gym_eximo.envs:EximoEnv3'
 )
+
+# 5x5 board
+# rewards:
+#   +1 on valid move
+#   -1 on invalid move
+register(
+    id='eximo-v4',
+    entry_point='gym_eximo.envs:EximoEnv4'
+)
