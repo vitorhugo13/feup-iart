@@ -34,7 +34,7 @@ if model_name == 'dqn':
     from stable_baselines.deepq.policies import MlpPolicy
     from stable_baselines import DQN
     
-    model = DQN(MlpPolicy, env, verbose=1, exploration_fraction=0.8, exploration_final_eps=0.15)
+    model = DQN(MlpPolicy, env, verbose=1, exploration_fraction=0.9, exploration_final_eps=0.5)
     model.learn(total_timesteps=1000000, log_interval=1)
     model.save(agent_dir + 'agent')
 
