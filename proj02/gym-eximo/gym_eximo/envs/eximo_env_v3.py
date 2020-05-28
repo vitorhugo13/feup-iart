@@ -4,9 +4,9 @@ from gym.utils import seeding
 
 import numpy as np
 
-from .eximo.eximo import Eximo
-from .eximo.state import State
-from .eximo.utils import Direction
+from .eximo_min.eximo import Eximo
+from .eximo_min.state import State
+from .eximo_min.utils import Direction
 
 
 class EximoEnv3(gym.Env):
@@ -90,7 +90,7 @@ class EximoEnv3(gym.Env):
             if state.action[0] != 4:
                 n_state = state
             else:
-                cell = action - 198
+                cell = action - 197
 
                 if state.player == 1:
                     cell += 20
