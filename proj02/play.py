@@ -5,13 +5,15 @@ import sys
 import warnings
 warnings.filterwarnings("ignore")
 
-if len(sys.argv) < 3:
-    sys.exit('No trained model found...')
+if len(sys.argv) != 4:
+    print('Usage: python play.py <env> <model> <agent_name>')
+    sys.exit()
 
-env = gym.make('eximo-v0')
+env_name = sys.argv[1]
+model_type = sys.argv[2]
+model_name = sys.argv[3] + '/agent'
 
-model_type = sys.argv[1]
-model_name = sys.argv[2] + '/agent'
+env = gym.make(env_name)
 
 if model_type == 'ppo1':
     from stable_baselines.common.policies import MlpPolicy

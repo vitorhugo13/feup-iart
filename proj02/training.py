@@ -23,7 +23,7 @@ agent_name = sys.argv[3]
 # create a directory for the trained agent and logs
 MODEL_DIR = 'models/'
 
-agent_dir = MODEL_DIR + agent_name + '/'
+agent_dir = MODEL_DIR + '/' + env_name + '/' + agent_name + '/'
 os.makedirs(agent_dir, exist_ok=True)
 
 env = gym.make(env_name)
@@ -43,13 +43,13 @@ elif model_name == 'ppo1':
     from stable_baselines import PPO1
 
     model = PPO1(MlpPolicy, env, verbose=1)
-    model.learn(total_timesteps=100000, log_interval=1)
+    model.learn(total_timesteps=1000000, log_interval=1)
     model.save(agent_dir + 'agent')
 
 elif model_name == 'acer':
     from stable_baselines.common.policies import MlpPolicy
     from stable_baselines import ACER 
-    model = ACER(MlpPolicy, env, verbose=1, learning_rate=0.01)
+    model = ACER(MlpPolicy, env, verbose=1)
     model.learn(total_timesteps=1000000, log_interval=1)
     model.save(agent_dir + 'agent')
  
