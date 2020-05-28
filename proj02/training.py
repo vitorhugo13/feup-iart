@@ -49,7 +49,7 @@ elif model_name == 'ppo1':
 elif model_name == 'acer':
     from stable_baselines.common.policies import MlpPolicy
     from stable_baselines import ACER 
-    model = ACER(MlpPolicy, env, verbose=1, learning_rate = 0.01)
+    model = ACER(MlpPolicy, env, verbose=1)
     model.learn(total_timesteps=1000000, log_interval=1)
     model.save(agent_dir + 'agent')
  
