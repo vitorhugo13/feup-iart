@@ -43,7 +43,7 @@ elif model_name == 'ppo1':
     from stable_baselines import PPO1
 
     model = PPO1(MlpPolicy, env, verbose=1)
-    model.learn(total_timesteps=3000000, log_interval=1)
+    model.learn(total_timesteps=1000000, log_interval=1)
     model.save(agent_dir + 'agent')
 
 elif model_name == 'acer':

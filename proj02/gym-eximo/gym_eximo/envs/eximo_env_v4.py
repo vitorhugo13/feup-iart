@@ -13,6 +13,7 @@ class EximoEnv4(gym.Env):
     metadata = {'render.modes': ['human']}
 
     step_num = 0
+    episode_steps = 0
 
     def __init__(self):
         self.game = Eximo(['P', 0, None], ['P', 0, None])
@@ -24,6 +25,8 @@ class EximoEnv4(gym.Env):
     def step(self, action):
 
         self.step_num += 1
+        self.episode_steps += 1
+
         # print('step : ' + str(self.step_num) + ' action : ' + str(action))
 
         if (self.step_num % 1000) == 0:
@@ -104,6 +107,12 @@ class EximoEnv4(gym.Env):
 
         observation = self.encode_state(n_state)
         done, winner = self.game.game_over(n_state)
+
+        if self.episode_steps % 20000 == 0 and self.episode_steps > 0:
+            done = True
+
+        if done:
+            self.episode_steps = 0
         
         reward = -1 if (n_state == state) else 1
 
