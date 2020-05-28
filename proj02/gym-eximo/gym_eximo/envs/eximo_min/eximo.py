@@ -27,10 +27,14 @@ class Eximo:
     def game_over(self, state: State) -> tuple:
         if state.score[1] <= 0:
             state.print()
+            if state.has_moves():
+                return(False, 0)
             print("Player 2 won!")
             return (True, 2)
         elif state.score[2] <= 0:
             state.print()
+            if state.has_moves():
+                return(False, 0)
             print("Player 1 won!")
             return (True, 1)
         elif not state.has_moves():
