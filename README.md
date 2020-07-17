@@ -8,5 +8,5 @@ Repository for the project of the IART couse @FEUP
  * **Contributors** : [Bernardo Santos](https://github.com/bernas670), [João Matos](https://github.com/joaonmatos), [Vítor Gonçalves](https://github.com/vitorhugo13)
 
 # Grades
-* **Proj1** : 17/20
-* **Proj2** : 18/20
+* **Proj01** : 17/20
+* **Proj02** : 18/20
